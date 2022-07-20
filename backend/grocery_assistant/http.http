@@ -1,0 +1,100 @@
+POST http://51.250.107.180:80/api/v1/auth/signup/
+Content-Type: application/json
+
+{
+
+    "email": "art@art.ru",
+    "username": "art"
+
+}
+
+###
+POST http://127.0.0.1:8000/api/v1/auth/token/
+Content-Type: application/json
+
+{
+    "username": "art",
+    "confirmation_code": "62d-95d56220c9d99789c3d6"
+}
+
+
+###
+GET http://127.0.0.1:8000/api/v1/users/me/
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjYwMTM4MDAxLCJpYXQiOjE2NTc1NDYwMDEsImp0aSI6IjAyMTAyNjBiZmQzZDQ1Yjg4YWNhMDRmZWY3NTliMTg2IiwidXNlcl9pZCI6MX0.N-JcFIuv5DB0kqfrb5qXTKkGNFDmPN_B362Q_5QtjyM
+Content-Type: application/json
+
+###
+GET http://127.0.0.1:8000/api/recipes/
+
+###
+POST http://127.0.0.1:8000/api/recipes/
+Content-Type: application/json
+
+{
+  "ingredients": [
+    2
+  ],
+  "tags": [
+    2
+  ],
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+  "name": "string",
+  "text": "string",
+  "cooking_time": 1,
+  "author": 1
+}
+
+
+###
+GET http://127.0.0.1:8000/api/tags/
+###
+GET http://127.0.0.1:8000/api/tags/1/
+###
+GET http://127.0.0.1:8000/api/ingredients/
+###
+GET http://127.0.0.1:8000/api/ingredients/1/
+
+###
+GET http://127.0.0.1:8000/api/users/me/
+
+###
+POST http://127.0.0.1:8000/api/users/signup/
+Content-Type: application/json
+
+{
+  "email": "16vpupkin@yandex.ru",
+  "username": "16vasya.pupkin",
+  "first_name": "16Вася",
+  "last_name": "16Пупкин",
+  "password": "1Q6wert7y123"
+}
+###
+GET http://127.0.0.1:8000/api/users/
+###
+GET http://127.0.0.1:8000/api/users/3/
+
+###
+GET http://127.0.0.1:8000/api/users/me/
+###
+POST http://127.0.0.1:8000/api/users/set_password/
+
+###
+GET http://127.0.0.1:8000/api/users/subscriptions/
+###
+GET http://127.0.0.1:8000/api/users/3/subscribe/
+
+
+
+
+
+###
+POST http://127.0.0.1:8000/api/users/
+Content-Type: application/json
+
+{
+  "email": "5@yandex.ru",
+  "username": "5kin",
+  "first_name": "1Hася",
+  "last_name": "1uПупкин",
+  "password": "1uuuuert7y123"
+}
