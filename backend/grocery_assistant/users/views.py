@@ -9,16 +9,14 @@ from rest_framework.decorators import action
 from .pagination import UserPagination
 from .serializers import UserSerializer
 from .permissions import AdminAllPermissionOrMeURLGetUPDMyself
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.mail import send_mail
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view
-from .serializers import UserAuthSerializer
-from .serializers import UserConfirmationCodeSerializer
+from .serializers import UserGetTokenSerializer
 from .serializers import FollowSerializer
 from .serializers import NewUserSerializer
 from .models import Follow
 from rest_framework import mixins
+#from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.hashers import make_password, check_password
 
 User = get_user_model()
 
@@ -134,80 +132,3 @@ class FollowViewSet(CreateListViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-
-def code_send(found_user):
-    """Возвращение и отправка токена пользователю на email."""
-    token = default_token_generator.make_token(found_user)
-    send_mail(
-        'YaMDb API.Сервис',
-        f'Здравствуйте {found_user.username}! Ваш код: {token}',
-        'from@example.com',
-        [found_user.email],
-        fail_silently=False,
-    )
-    return token
-
-
-@api_view(['POST'])
-def signup_to_api(request):
-    """View-функция отсылающая код подтверждения на email адрес."""
-    serializer = UserAuthSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    email = serializer.validated_data['email']
-    username = serializer.validated_data['username']
-    # Ищем такого пользователя
-    user = User.objects.filter(email=email).first()
-    if user:
-        # Если пользователь найден
-        # Совпадает ли username у user из request
-        if user.username != username:
-            message = (
-                'This \'email\' already exists or wrong '
-                'pair \'username\' and \'email\'.'
-            )
-            return Response(
-                {'username': message},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-    else:
-        # Проверяем, при создании нового пользователя,
-        # не занят ли username из request
-        if User.objects.filter(username=username).exists():
-            return Response(
-                {'username': 'This \'username\' already exists.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        user = User.objects.create(**serializer.validated_data)
-    # Отправляем код пользователю
-    user.confirmation_code = code_send(user)
-    user.save()
-    return Response(
-        {'email': serializer.data['email'],
-        'id': user.id,
-        'username': serializer.data['username'],
-        'first_name': serializer.data['first_name'],
-        'last_name': serializer.data['last_name']}
-        , status=status.HTTP_201_CREATED
-    )
-
-
-@api_view(['POST'])
-def issue_a_token(request):
-    serializer = UserConfirmationCodeSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    # Проверяем username и confirmation_code
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
-    )
-    request_code = serializer.validated_data['confirmation_code']
-    if default_token_generator.check_token(user, request_code):
-        tokenjwt = RefreshToken.for_user(user)
-        return Response({'token': str(tokenjwt.access_token)})
-    return Response(
-        {'detail': 'Wrong \'confirmation_code\'.'},
-        status=status.HTTP_400_BAD_REQUEST
-    )
-
-
-default_token_generator = PasswordResetTokenGenerator()

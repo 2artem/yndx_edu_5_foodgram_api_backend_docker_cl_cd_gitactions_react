@@ -71,10 +71,13 @@ Content-Type: application/json
 ###
 GET http://127.0.0.1:8000/api/users/
 ###
-GET http://127.0.0.1:8000/api/users/3/
+GET http://127.0.0.1:8000/api/users/8/
 
 ###
 GET http://127.0.0.1:8000/api/users/me/
+Authorization: Token 309a5a8189d51130ca45d736cb6bc2361c4083a5
+
+
 ###
 POST http://127.0.0.1:8000/api/users/set_password/
 
@@ -83,8 +86,26 @@ GET http://127.0.0.1:8000/api/users/subscriptions/
 ###
 GET http://127.0.0.1:8000/api/users/3/subscribe/
 
+###
+POST http://127.0.0.1:8000/api/auth/token/login/
+Content-Type: application/json
 
+{
+  "email": "art@mail.ru",
+  "password": "art"
+}
+###
+POST http://127.0.0.1:8000/api/auth/token/login/
+Content-Type: application/json
 
+{
+  "email": "admin@mail.ru",
+  "password": "admin"
+}
+
+###
+POST http://127.0.0.1:8000/api/auth/token/logout/
+Authorization: Token 309a5a8189d51130ca45d736cb6bc2361c4083a5
 
 
 ###
@@ -92,9 +113,9 @@ POST http://127.0.0.1:8000/api/users/
 Content-Type: application/json
 
 {
-  "email": "5@yandex.ru",
-  "username": "5kin",
-  "first_name": "1Hася",
-  "last_name": "1uПупкин",
-  "password": "1uuuuert7y123"
+  "email": "art@mail.ru",
+  "username": "art",
+  "first_name": "art",
+  "last_name": "art",
+  "password": "art"
 }

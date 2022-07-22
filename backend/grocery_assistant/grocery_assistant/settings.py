@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'rest_framework',
     # ?????
-    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
+    #'rest_framework_simplejwt',
     'djoser',
 ]
 
@@ -122,15 +123,18 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 # Подключаем JWTAuthentication
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
+    #'DEFAULT_AUTHENTICATION_CLASSES': [
+    #    'rest_framework_simplejwt.authentication.JWTAuthentication',
+    #],
     #'DEFAULT_PERMISSION_CLASSES': [
     #    'rest_framework.permissions.IsAuthenticated', 
     #],
 }
 
-SIMPLE_JWT = {
+'''SIMPLE_JWT = {
     # Срок жизни токена
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'AUTH_HEADER_TYPES': ('Token',),
-}
+}'''

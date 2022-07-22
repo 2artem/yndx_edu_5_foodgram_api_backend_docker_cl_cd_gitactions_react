@@ -1,10 +1,9 @@
 from django.urls import path
 from django.urls import include
-from .views import signup_to_api
-from .views import issue_a_token
 from rest_framework.routers import SimpleRouter
 from .views import UserViewSet
 #from .views import SubscribeViewSet
+from djoser.views import TokenCreateView, TokenDestroyView
 
 
 router = SimpleRouter()
@@ -25,10 +24,11 @@ urlpatterns = [
     # Получить токен авторизации
 
     # Используется для авторизации по емейлу и паролю, чтобы далее использовать токен при запросах.
-    # http://localhost/api/auth/token/login/
-
-    #path('users/signup/', signup_to_api),
-    #path('auth/token/login/', issue_a_token),
+    path('auth/token/login/', TokenCreateView.as_view()),
     # Удаляет токен текущего пользователя
-    # http://localhost/api/auth/token/logout/
+    
+    path('auth/token/logout/', TokenDestroyView.as_view()),
+
+    
+
 ]
