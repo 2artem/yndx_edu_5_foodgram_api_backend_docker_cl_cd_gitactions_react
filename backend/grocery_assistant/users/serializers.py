@@ -37,9 +37,13 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        # Достаем из запроса username и id произедения
-        # title_id = self.context['request'].parser_context['kwargs']['title_id']
-        return str(self.context['request'].user) == 'AnonymousUser'
+        '''Подписан ли текущий пользователь на другого пользователя.'''
+        user = self.context['request'].user
+        # Если пользователь не аноним и подписка существует
+        if (user != AnonymousUser()
+            and Follow.objects.filter(user=user ,following=obj.pk).exists()):
+            return True
+        return False
 
 
 class NewUserSerializer(serializers.ModelSerializer):

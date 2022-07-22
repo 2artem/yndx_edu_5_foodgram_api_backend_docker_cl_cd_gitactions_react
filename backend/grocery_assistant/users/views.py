@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from .pagination import UserPagination
 from .serializers import UserSerializer
-from .permissions import AdminAllPermissionOrMeURLGetUPDMyself
+from .permissions import UnAuthUsersViewUsersListAndMaySignToAPI
 from rest_framework.decorators import api_view
 from .serializers import UserGetTokenSerializer
 from .serializers import FollowSerializer
@@ -29,24 +29,29 @@ class UserViewSet(viewsets.ModelViewSet):
     #pagination_class = UserPagination
     #filter_backends = (filters.SearchFilter,)
     #search_fields = ('^username',)
-    #permission_classes = (
-    #    permissions.IsAuthenticated,
+    permission_classes = (
+        #UnAuthUsersViewUsersListAndMaySignToAPI,
+        permissions.IsAuthenticated,
     #    AdminAllPermissionOrMeURLGetUPDMyself,
-    #)
+    )
     def get_serializer_class(self):
         # При создании нового пользователя, выбираем другой сериализатор
         if self.action == 'create':
             return NewUserSerializer
         return UserSerializer
+    
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'create':
+            return (UnAuthUsersViewUsersListAndMaySignToAPI(),)
+        return super().get_permissions()
 
-    @action(detail=False, methods=['get', 'patch'])
+    @action(detail=False, methods=['get'])
     def me(self, request):
         """Метод обрабатывающий эндпоинт 'me'."""
         user = get_object_or_404(User, username=request.user.username)
-        if request.method == 'GET':
-            serializer = self.get_serializer(user)
-            return Response(serializer.data)
-        # Если username и email не переданы
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+        '''# Если username и email не переданы
         request.POST._mutable = True
         request.data['email'] = request.user.email
         request.data['username'] = request.user.username
@@ -68,7 +73,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 )
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
 
     @action(detail=False, methods=['post'])
     def set_password(self, request):

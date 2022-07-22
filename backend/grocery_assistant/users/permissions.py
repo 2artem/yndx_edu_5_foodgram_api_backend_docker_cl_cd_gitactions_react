@@ -1,6 +1,22 @@
 from rest_framework import permissions
 from django.urls import reverse
 
+class UnAuthUsersViewUsersListAndMaySignToAPI(permissions.BasePermission):
+    """999."""
+
+    def has_permission(self, request, view):
+        """
+        Переопределяем стандартный метод has_permission.
+        Для переопределения прав на уровне запроса
+        """
+        return True
+        #return request.path == reverse('user-detail', kwargs={'username': 'me'}):
+        #if request.path == reverse('user-detail', kwargs={'username': 'me'}):
+            # Если страница me, даем доступ
+            #return True
+        # Если соответствующие эндпоинты users
+        #return bool(request.user.is_superuser or request.user.is_admin)
+
 
 class AdminAllPermissionOrMeURLGetUPDMyself(permissions.BasePermission):
     """Кастомный пермишн для работы администратора и 'me' эндпоинта."""

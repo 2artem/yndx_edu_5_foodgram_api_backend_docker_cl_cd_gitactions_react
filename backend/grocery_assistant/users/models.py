@@ -93,8 +93,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 	    'password',
     ]
 
-    
-
     class Meta:
         ordering = ['username']
         verbose_name = 'пользователь'
@@ -103,87 +101,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-
-
-
-'''
-
-class User(AbstractUser):
-    username_validator = UnicodeUsernameValidator()
-    # Роли
-    ROLE = (
-        (USER, 'Пользователь'),
-        (ADMIN, 'Администратор')
-    )
-    role = models.CharField(
-        'Роль',
-        max_length=9,
-        choices=ROLE,
-        default=USER,
-    )
-    # Логин
-    username = models.CharField(
-        _('username'),
-        max_length=150,
-        unique=True,
-        blank=False,
-        null=False,
-        help_text=_(
-            'Required. 150 characters or fewer. '
-            'Letters, digits and @/./+/-/_ only.'
-        ),
-        validators=[username_validator, username_validator_not_past_me],
-        error_messages={
-            'unique': _("A user with that username already exists."),
-        },
-    )
-    # Имя
-    first_name = models.CharField(
-        _('first name'),
-        max_length=150,
-        blank=False,
-        null=False,
-    )
-    # Фамилия
-    last_name = models.CharField(
-        _('last name'),
-        max_length=150,
-        blank=False,
-        null=False,
-    )
-    # Электронная почта
-    email = models.EmailField(
-        _('email address'),
-        max_length=254,
-        blank=False,
-        null=False,
-        unique=True)
-    # Пароль
-    password = models.CharField(
-        _('password'),
-        max_length=150,
-        blank=False,
-        null=False,
-    )
-    #confirmation_code = models.CharField(
-    #    'Код подтверждения email',
-    #    max_length=150,
-    #    blank=True,
-    #   null=True,
-    #)
-    @property
-    def is_admin(self):
-        return self.role == ADMIN
-
-    class Meta:
-        ordering = ['username']
-        verbose_name = 'пользователь'
-        verbose_name_plural = 'пользователи'
-
-    def __str__(self):
-        return self.username
-
-'''
 
 class Follow(models.Model):
     user = models.ForeignKey(
