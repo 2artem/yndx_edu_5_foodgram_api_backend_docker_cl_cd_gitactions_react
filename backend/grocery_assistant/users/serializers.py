@@ -7,19 +7,27 @@ from .models import Follow
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.password_validation import validate_password
 
 
 
 User = get_user_model()
 username_validator = UnicodeUsernameValidator()
 
-class UserGetTokenSerializer(serializers.Serializer):
-    """Сериалайзер для выдачи токена пользователю."""
-    password = serializers.CharField(
-        max_length=150,
-        required=True, 
-    )
-    email = serializers.EmailField(required=True)
+
+class SetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(max_length=150, required=True)
+    current_password = serializers.CharField(max_length=150, required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+
+
+    class Meta:
+        validators = [
+            
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):

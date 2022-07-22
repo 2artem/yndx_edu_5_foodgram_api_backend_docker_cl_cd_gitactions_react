@@ -9,6 +9,7 @@ from django.contrib import admin
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.password_validation import validate_password
 
 from .managers import CustomUserManager
 
@@ -74,6 +75,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(
         _('password'),
         max_length=150,
+        validators=[validate_password],
     )
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

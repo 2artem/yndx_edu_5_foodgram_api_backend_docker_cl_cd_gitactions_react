@@ -7,22 +7,31 @@ POST http://127.0.0.1:8000/api/users/
 Content-Type: application/json
 
 {
-  "email": "art23@mail.ru",
-  "username": "art23",
-  "first_name": "art23",
-  "last_name": "art23",
-  "password": "art23"
+  "email": "as@mail.ru",
+  "username": "as",
+  "first_name": "as",
+  "last_name": "as",
+  "password": "userQW12!"
 }
 ###
-GET http://127.0.0.1:8000/api/users/4/
+GET http://127.0.0.1:8000/api/users/5/
 Authorization: Token d13f9e94c682f25f0275c6402d82ac57a2d72ae6
 
 ###
 GET http://127.0.0.1:8000/api/users/me/
-Authorization: Token d13f9e94c682f25f0275c6402d82ac57a2d72ae6
+Authorization: Token 412942be3b818b5e76a8aaed69ba4bd4c7948da5
 
 ###
 POST http://127.0.0.1:8000/api/users/set_password/
+Authorization: Token 412942be3b818b5e76a8aaed69ba4bd4c7948da5
+Content-Type: application/json
+
+{
+  "current_password": "userQW12!",
+  "new_password": "use266612!"
+}
+
+
 
 ###
 GET http://127.0.0.1:8000/api/users/subscriptions/
@@ -43,7 +52,7 @@ Content-Type: application/json
 
 {
   "email": "admin@mail.ru",
-  "password": "admin"
+  "password": "userQW12!"
 }
 
 ###
