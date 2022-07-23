@@ -138,3 +138,5 @@ REST_FRAMEWORK = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'AUTH_HEADER_TYPES': ('Token',),
 }'''
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

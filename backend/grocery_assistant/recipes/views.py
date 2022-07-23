@@ -151,12 +151,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class TagViewSet(ListRetrieveModelViewSet):
-    """Вьюсет для Genre."""
+    """Вьюсет для ."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 class IngredientViewSet(ListRetrieveModelViewSet):
-    """Вьюсет для Genre."""
+    """Вьюсет для ."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
 

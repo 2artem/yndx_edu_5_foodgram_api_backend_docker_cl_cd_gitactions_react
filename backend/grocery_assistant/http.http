@@ -93,19 +93,10 @@ GET http://127.0.0.1:8000/api/ingredients/1/
 
 
 
-
 ###
-GET http://127.0.0.1:8000/api/users/me/
+GET http://127.0.0.1:8000/api/recipes/
 
-###
-POST http://127.0.0.1:8000/api/users/signup/
-Content-Type: application/json
 
-{
-  "email": "16vpupkin@yandex.ru",
-  "username": "16vasya.pupkin",
-  "first_name": "16Вася",
-  "last_name": "16Пупкин",
-  "password": "1Q6wert7y123"
-}
-###
+
+
+
