@@ -1,5 +1,4 @@
 GET http://127.0.0.1:8000/api/users/
-Authorization: Token d13f9e94c682f25f0275c6402d82ac57a2d72ae6
 
 
 ###
@@ -95,8 +94,53 @@ GET http://127.0.0.1:8000/api/ingredients/1/
 
 ###
 GET http://127.0.0.1:8000/api/recipes/
+Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+
+###
+GET http://127.0.0.1:8000/api/recipes/?tags=lol
+Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+
+###
+GET http://127.0.0.1:8000/api/recipes/?author=admin&tags=pol
+Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+
+###
+GET http://127.0.0.1:8000/api/recipes/
+Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
 
 
 
+###
+GET http://127.0.0.1:8000/api/recipes/1/
+Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+
+###
+POST http://127.0.0.1:8000/api/recipes/
+Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+Content-Type: application/json
+
+{
+  "image": "CByxOy",
+  "name": "string",
+  "text": "string",
+  "cooking_time": 1
+}
 
 
+###
+{
+  "ingredients": [
+    {
+      "id": 2,
+      "amount": 500
+    }
+  ],
+  "tags": [
+    1,
+    2
+  ],
+  "image": "CByxOy",
+  "name": "string",
+  "text": "string",
+  "cooking_time": 1
+}

@@ -239,14 +239,6 @@ class RecipeIngredientRelationship(models.Model):
 
 
 
-
-
-
-
-
-
-
-
 class FavoritesRecipesUserList(models.Model):
     user = models.ForeignKey(
         User,

@@ -30,6 +30,11 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from .models import Recipe, Tag, Ingredient
 from rest_framework import mixins
+from .pagination import RecipePagination
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import CustomRecipeFilterSet
+
+
 
 class ListCreateDestroyModelViewSet(mixins.CreateModelMixin,
                                     mixins.ListModelMixin,
@@ -143,8 +148,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для Category."""
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    '''permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
-    pagination_class = CategoryPagination
+    pagination_class = RecipePagination
+    # Указываем фильтрующий бэкенд DjangoFilterBackend
+    # Из библиотеки django-filter
+    filter_backends = (DjangoFilterBackend,)
+    # Фильтровать будем по пол tags модели Recipe
+    #filterset_fields = ('tags',)
+    filterset_class = CustomRecipeFilterSet
+
+    #filterset_fields = ('is_favorited',)
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
     search_fields = ('^name',)
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)'''

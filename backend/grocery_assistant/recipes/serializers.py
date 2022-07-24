@@ -1,14 +1,28 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 # from reviews.models import Category, Genre, Title, Review, Comment
-from .models import Recipe, Tag, Ingredient, RecipeIngredientRelationship
+from .models import Recipe, Tag, Ingredient, RecipeIngredientRelationship, FavoritesRecipesUserList, ShoppingUserList
 from rest_framework import status
 from users.serializers import UserSerializer
-
+from django.contrib.auth.models import AnonymousUser
 
 User = get_user_model()
 
 
+
+
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'color', 'slug')
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name', 'measurement_unit')
 '''class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -114,19 +128,17 @@ class CommentSerializer(serializers.ModelSerializer):
 '''
 
 
+
+
+
 class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
-    #amount = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     measurement_unit = serializers.SerializerMethodField()
 
-
     class Meta:
         model = RecipeIngredientRelationship#Ingredient
         #fields = '__all__'
-
-
-
         fields = (
             'id',
             'name',
@@ -143,61 +155,22 @@ class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
     def get_measurement_unit(self, obj):
         return obj.ingredient.measurement_unit
     
-     #   '''Под.'''
-        
-        #RecipeIngredientRelationship.objects.filter(user=user ,following=obj.pk)
-        #ingredient
-        #recipe
-        #amount
-
-
-        #user = self.context['request'].user
-        # Если пользователь не аноним и подписка существует
-        #if (user != AnonymousUser()
-        #    and Follow.objects.filter(user=user ,following=obj.pk).exists()):
-        #    return True
-
-
-       # return '777'#obj.measurement_unit
-
-
-        #  self.context['request'].user == data['following']
-        #title_id = self.context['request'].parser_context['kwargs']['title_id']
-        #username = self.context['request'].user
-        # Проверка на наличие в БД отзыва пользователя из запроса
-      #self.context['request'].method == 'POST'):
-
 
 class RecipeSerializer(serializers.ModelSerializer):
     # В моделе 'связи рецепта и его ингредиентов с их количествами' RecipeIngredientRelationship:
     # сериалайзер должен работать с полем рецепт
     ingredients = RecipeIngredientRelationshipSerializer(read_only=True, many=True, source='recipe')
+    tags = TagSerializer(read_only=True, many=True)
     author = UserSerializer(read_only=True, many=False)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
+    # &&&&&&&&&&&&&&
+    # 'image' =Base64ImageField()
     
 
-
-
     # ингридиенты и теги обязательные к заполнению поля!!!!!!!!!!!!!!!!!!!!!! 6 обязательных полей
-    '''author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
-    )
 
-    def validate(self, data):
-        """
-        Один пользователь может оставить
-        только лишь один отзыв на произведение.
-        """
-        # Достаем из запроса username и id произедения
-        title_id = self.context['request'].parser_context['kwargs']['title_id']
-        username = self.context['request'].user
-        # Проверка на наличие в БД отзыва пользователя из запроса
-        if (Review.objects.filter(title_id=title_id, author=username).exists()
-                and self.context['request'].method == 'POST'):
-            raise serializers.ValidationError(
-                'Вы уже оставляли свой отзыв к этому произведению.',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        return data'''
 
     class Meta:
         model = Recipe
@@ -206,14 +179,31 @@ class RecipeSerializer(serializers.ModelSerializer):
             'tags', 
             'author',
             'ingredients',
-            #'is_favorited',
-            #'is_in_shopping_cart',
+            'is_favorited',
+            'is_in_shopping_cart',
             'name',
             'image',
             'text',
             'cooking_time',
         )
 
+    def get_is_favorited(self, obj):
+        '''В избранном .'''
+        user = self.context['request'].user
+        # Если пользователь не аноним и подписка существует
+        if (user != AnonymousUser()
+            and FavoritesRecipesUserList.objects.filter(user=user ,favorit_recipe=obj.pk).exists()):
+            return True
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        '''В шоп листе .'''
+        user = self.context['request'].user
+        # Если пользователь не аноним и подписка существует
+        if (user != AnonymousUser()
+            and ShoppingUserList.objects.filter(user=user ,recipe_in_shoplist=obj.pk).exists()):
+            return True
+        return False
 
 
 
@@ -225,18 +215,6 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 
-class TagSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Tag
-        fields = ('id', 'name', 'color', 'slug')
-
-
-class IngredientSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Ingredient
-        fields = ('id', 'name', 'measurement_unit')
 
 
  
