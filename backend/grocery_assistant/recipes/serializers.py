@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from django.shortcuts import get_object_or_404
 # from reviews.models import Category, Genre, Title, Review, Comment
-from .models import Recipe, Tag, Ingredient, RecipeIngredientRelationship, FavoritesRecipesUserList, ShoppingUserList
+from .models import Recipe, Tag, Ingredient
+from .models import  RecipeTagRelationship, RecipeIngredientRelationship, FavoritesRecipesUserList, ShoppingUserList
 from rest_framework import status
 from users.serializers import UserSerializer
 from django.contrib.auth.models import AnonymousUser
@@ -23,121 +25,42 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
-'''class CategorySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Category
-        fields = ('name', 'slug')
 
 
-class GenreSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Genre
-        fields = ('name', 'slug')
 
 
-class TitlesSerializer(serializers.ModelSerializer):
-    """Сериалайзер для вывода информации."""
-    rating = serializers.IntegerField(read_only=True)
-    category = CategorySerializer(
-        read_only=True,
-    )
-    genre = GenreSerializer(
-        read_only=True,
-        many=True
-    )
-
-    class Meta:
-        model = Title
-        fields = (
-            'id',
-            'name',
-            'year',
-            'rating',
-            'description',
-            'genre',
-            'category'
-        )
-
-
-class TitlesSerializerMethod(serializers.ModelSerializer):
-    """Сериалайзер для изменения информации."""
-    rating = serializers.IntegerField(read_only=True)
-    category = serializers.SlugRelatedField(
-        slug_field='slug',
-        required=True,
-        many=False,
-        queryset=Category.objects.all(),
-    )
-    genre = serializers.SlugRelatedField(
-        slug_field='slug',
-        required=True,
-        many=True,
-        queryset=Genre.objects.all(),
-    )
-
-    class Meta:
-        model = Title
-        fields = (
-            'id',
-            'name',
-            'year',
-            'rating',
-            'description',
-            'genre',
-            'category'
-        )
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
-    )
-
-    def validate(self, data):
-        """
-        Один пользователь может оставить
-        только лишь один отзыв на произведение.
-        """
         # Достаем из запроса username и id произедения
-        title_id = self.context['request'].parser_context['kwargs']['title_id']
-        username = self.context['request'].user
+        #title_id = self.context['request'].parser_context['kwargs']['title_id']
+        #username = self.context['request'].user
         # Проверка на наличие в БД отзыва пользователя из запроса
-        if (Review.objects.filter(title_id=title_id, author=username).exists()
-                and self.context['request'].method == 'POST'):
-            raise serializers.ValidationError(
-                'Вы уже оставляли свой отзыв к этому произведению.',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        return data
-
-    class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        #if (Review.objects.filter(title_id=title_id, author=username).exists()
+            #    and self.context['request'].method == 'POST'):
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
-    )
-
-    class Meta:
-        fields = ('id', 'text', 'author', 'pub_date')
-        model = Comment
-'''
-
-
-
+'''class MyField(serializers.Field):
+    # При чтении данных ничего не меняем - просто возвращаем как есть
+    def to_representation(self, value):
+        return value
+    # При записи код цвета конвертируется в его название
+    def to_internal_value(self, data):
+        # Доверяй, но проверяй
+        #try:
+            # Если имя цвета существует, то конвертируем код в название
+            #data = webcolors.hex_to_name(data)
+        #except ValueError:
+            # Иначе возвращаем ошибку
+            #raise serializers.ValidationError('Для этого цвета нет имени')
+        # Возвращаем данные в новом формате
+        return data'''
 
 
 class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField()
-    measurement_unit = serializers.SerializerMethodField()
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.StringRelatedField(source='ingredient.name')
+    measurement_unit = serializers.StringRelatedField(source='ingredient.measurement_unit')
 
     class Meta:
-        model = RecipeIngredientRelationship#Ingredient
+        model = RecipeIngredientRelationship
         #fields = '__all__'
         fields = (
             'id',
@@ -146,31 +69,20 @@ class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
             'amount',
         )
     
-    def get_id(self, obj):
-        return obj.ingredient.id
-        
-    def get_name(self, obj):
-        return obj.ingredient.name
-    
-    def get_measurement_unit(self, obj):
-        return obj.ingredient.measurement_unit
     
 
 class RecipeSerializer(serializers.ModelSerializer):
     # В моделе 'связи рецепта и его ингредиентов с их количествами' RecipeIngredientRelationship:
     # сериалайзер должен работать с полем рецепт
     ingredients = RecipeIngredientRelationshipSerializer(read_only=True, many=True, source='recipe')
-    tags = TagSerializer(read_only=True, many=True)
-    author = UserSerializer(read_only=True, many=False)
+    tags = TagSerializer(many=True) #read_only=True, 
+    author = UserSerializer(read_only=True)#, many=False)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     # &&&&&&&&&&&&&&
     # 'image' =Base64ImageField()
     
-
-    # ингридиенты и теги обязательные к заполнению поля!!!!!!!!!!!!!!!!!!!!!! 6 обязательных полей
-
 
     class Meta:
         model = Recipe
@@ -209,6 +121,75 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+
+class RecipeIngredientAmountCreateUpdateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField()
+
+    class Meta:
+        model = RecipeIngredientRelationship
+        fields = (
+            'id',
+            'amount',
+        )
+
+
+
+class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
+    ingredients = RecipeIngredientAmountCreateUpdateSerializer(
+        many=True,
+        source='recipe'
+    )
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True
+    )
+    author = UserSerializer(read_only=True)
+
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'tags', 
+            'author',
+            'ingredients',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+        )
+
+    def to_representation(self, instance):
+        return RecipeSerializer(instance, context=self.context).data
+
+    def create(self, validated_data):
+        # Уберем tag из словаря validated_data и сохраним его в tags
+        ingredients = validated_data.pop('recipe')
+        tags = validated_data.pop('tags')
+        request = self.context.get('request')
+        author = request.user
+        recipe = Recipe.objects.create(
+            author=author,
+            **validated_data)
+        # Для каждого тега из списка тегов
+        for tag in tags:
+            # Поместим ссылку на каждое достижение во вспомогательную таблицу
+            # Не забыв указать к какому котику оно относится
+            RecipeTagRelationship.objects.create(
+                tag=tag, recipe=recipe)
+        # Для каждого тега из списка тегов
+        for ingredient in ingredients:
+            # Создадим новую запись или получим существующий экземпляр из БД
+            current_ingredient = get_object_or_404(Ingredient, id=ingredient['id'])
+            amount = ingredient['amount']
+            # Поместим ссылку на каждое достижение во вспомогательную таблицу
+            # Не забыв указать к какому котику оно относится
+            RecipeIngredientRelationship.objects.create(
+                ingredient=current_ingredient, recipe=recipe, amount=amount)
+        return recipe
 
 
 

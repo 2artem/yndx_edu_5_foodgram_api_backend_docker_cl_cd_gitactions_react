@@ -25,7 +25,7 @@ from .pagination import ReviewPagination
 from .pagination import CommentPagination
 from .filters import CustomFilter'''
 
-from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer
+from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer, RecipeCreateUpdateSerializer
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from .models import Recipe, Tag, Ingredient
@@ -162,6 +162,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     search_fields = ('^name',)
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)'''
+    def get_serializer_class(self):
+        # При создании или обновлении рецепта, выбираем другой сериализатор
+        if self.action == 'create' or self.action == 'partial_update' or self.action == 'update':
+            return RecipeCreateUpdateSerializer
+        return RecipeSerializer
+
 
 
 class TagViewSet(ListRetrieveModelViewSet):

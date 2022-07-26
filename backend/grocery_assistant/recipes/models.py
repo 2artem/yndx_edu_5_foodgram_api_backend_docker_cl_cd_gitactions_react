@@ -152,12 +152,12 @@ class Recipe(models.Model):
         ordering = ['-pub_date']
         verbose_name = 'рецепт'
         verbose_name_plural = "рецепты"
-        constraints = [
-            models.UniqueConstraint(
-                name="unique_relationships1",
-                fields=['author', 'name'],
-            ),
-        ]
+        #constraints = [
+        #    models.UniqueConstraint(
+        #        name="unique_relationships1",
+        #        fields=['author', 'name'],
+        #    ),
+        #]
 
     def __str__(self):
         return self.text[:15]
@@ -243,13 +243,13 @@ class FavoritesRecipesUserList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        #related_name='user1',
+        related_name='user1',
         verbose_name='Пользователь, имеющий избранные рецепты',
     )
     favorit_recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        #related_name='favorit_recipe',
+        related_name='favorit_recipe',
         verbose_name='Избранный рецепт определенного пользователя',
     )
 
@@ -279,7 +279,7 @@ class ShoppingUserList(models.Model):
     recipe_in_shoplist = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        #related_name='recipe_in_shoplist',
+        related_name='recipe_in_shoplist',
         verbose_name='Рецепт из списка покупок пользователя',
     )
 

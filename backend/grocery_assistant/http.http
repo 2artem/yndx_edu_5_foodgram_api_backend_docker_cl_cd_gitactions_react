@@ -97,11 +97,11 @@ GET http://127.0.0.1:8000/api/recipes/
 Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
 
 ###
-GET http://127.0.0.1:8000/api/recipes/?tags=lol
+GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=True
 Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
 
 ###
-GET http://127.0.0.1:8000/api/recipes/?author=admin&tags=pol
+GET http://127.0.0.1:8000/api/recipes/?author=admin
 Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
 
 ###
@@ -111,8 +111,11 @@ Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
 
 
 ###
-GET http://127.0.0.1:8000/api/recipes/1/
+GET http://127.0.0.1:8000/api/recipes/9/
 Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+
+
+
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
@@ -120,6 +123,48 @@ Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
 Content-Type: application/json
 
 {
+  "ingredients": [
+    {
+      "id": 2,
+      "amount": 22
+    }
+  ],
+  "tags": [
+    2,
+    1
+  ],
+  "image": "77i55m4age",
+  "name": "007ge",
+  "text": "a5g5e4",
+  "cooking_time": 99
+}
+
+
+
+
+
+
+
+
+
+
+
+###
+{
+  "ingredients": [
+    {
+      "name": "55",
+      "measurement_unit": "155"
+    }
+  ],
+  "tags": [
+    {
+      "id": 2,
+      "name": "2Полдник",
+      "slug": "2pol",
+      "color": "#FBCEB1"
+    }
+  ],
   "image": "CByxOy",
   "name": "string",
   "text": "string",
@@ -128,19 +173,3 @@ Content-Type: application/json
 
 
 ###
-{
-  "ingredients": [
-    {
-      "id": 2,
-      "amount": 500
-    }
-  ],
-  "tags": [
-    1,
-    2
-  ],
-  "image": "CByxOy",
-  "name": "string",
-  "text": "string",
-  "cooking_time": 1
-}

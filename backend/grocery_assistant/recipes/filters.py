@@ -1,5 +1,5 @@
-from django_filters import FilterSet, ModelMultipleChoiceFilter, CharFilter
-from .models import Tag, Ingredient, Recipe
+from django_filters import FilterSet, ModelMultipleChoiceFilter, CharFilter, BooleanFilter
+from .models import Tag, Recipe
 
 
 class CustomRecipeFilterSet(FilterSet):
@@ -11,21 +11,20 @@ class CustomRecipeFilterSet(FilterSet):
         queryset=Tag.objects.all()
     )
     author = CharFilter(lookup_expr='username')
-
-
-
-    '''is_favorited = CharFilter(method='filter_is_favorited')
+    is_favorited = BooleanFilter(method='filter_is_favorited')
+    is_in_shopping_cart = BooleanFilter(method='filter_is_in_shopping_cart')
 
     def filter_is_favorited(self, queryset, name, value):
-        # construct the full lookup expression.
-        lookup = '__'.join([name, 'isnull'])
-        return queryset.filter(**{lookup: False})
-        FavoritesRecipesUserList.objects.filter(user=user ,favorit_recipe=obj.pk).exists())'''
+        if value:
+            return queryset.filter(favorit_recipe__user=self.request.user)
+        return queryset
 
+    def filter_is_in_shopping_cart(self, queryset, name, value):
+        if value:
+            return queryset.filter(recipe_in_shoplist__user=self.request.user)
+        return queryset
 
 
     class Meta:
         model = Recipe
-        fields = ['tags', 'author',]# 'is_favorited',]
-
-#"is_in_shopping_cart"
+        fields = ['tags', 'author', 'is_favorited', 'is_in_shopping_cart']
