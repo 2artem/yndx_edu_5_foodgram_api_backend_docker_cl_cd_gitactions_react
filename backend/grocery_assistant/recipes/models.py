@@ -39,7 +39,7 @@ def hex_field_validator(value):
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
-        unique=True,
+        unique=False,
         db_index=True,
         verbose_name='название',
     )
@@ -160,7 +160,10 @@ class Recipe(models.Model):
         #]
 
     def __str__(self):
-        return self.text[:15]
+        return '{}.. - ({}..)'.format(
+            self.name[:15],
+            self.text[:15]
+        )
     
 
 

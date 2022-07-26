@@ -11,6 +11,8 @@ class IngredientAdmin(admin.ModelAdmin):
         'name',
         'measurement_unit'
     )
+    ordering = ('pk',)
+    search_fields = ('name',)
 
 
 class RecipeAdmin(admin.ModelAdmin):

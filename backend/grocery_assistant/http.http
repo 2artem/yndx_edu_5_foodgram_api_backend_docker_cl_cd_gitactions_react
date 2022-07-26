@@ -1,24 +1,26 @@
 GET http://127.0.0.1:8000/api/users/
-
+###
+###GET http://127.0.0.1:8000/api/download_data/
 
 ###
 POST http://127.0.0.1:8000/api/users/
 Content-Type: application/json
 
 {
-  "email": "as@mail.ru",
-  "username": "as",
-  "first_name": "as",
-  "last_name": "as",
+  "email": "leo@mail.ru",
+  "username": "leo",
+  "first_name": "Leo",
+  "last_name": "Pug",
   "password": "userQW12!"
 }
 ###
-GET http://127.0.0.1:8000/api/users/5/
-Authorization: Token d13f9e94c682f25f0275c6402d82ac57a2d72ae6
+GET http://127.0.0.1:8000/api/users/2/
+Authorization: Token b3aba692a330a8e32b94c5cfd1a4edc3a2ed1126
 
 ###
 GET http://127.0.0.1:8000/api/users/me/
-Authorization: Token 412942be3b818b5e76a8aaed69ba4bd4c7948da5
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+
 
 ###
 POST http://127.0.0.1:8000/api/users/set_password/
@@ -42,8 +44,8 @@ POST http://127.0.0.1:8000/api/auth/token/login/
 Content-Type: application/json
 
 {
-  "email": "art23@mail.ru",
-  "password": "art23"
+  "email": "leo@mail.ru",
+  "password": "userQW12!"
 }
 ###
 POST http://127.0.0.1:8000/api/auth/token/login/
@@ -58,11 +60,12 @@ Content-Type: application/json
 POST http://127.0.0.1:8000/api/auth/token/logout/
 Authorization: Token 309a5a8189d51130ca45d736cb6bc2361c4083a5
 
-
+###
 GET http://127.0.0.1:8000/api/recipes/
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
+Authorization: Token b3aba692a330a8e32b94c5cfd1a4edc3a2ed1126
 Content-Type: application/json
 
 {
@@ -92,51 +95,71 @@ GET http://127.0.0.1:8000/api/ingredients/1/
 
 
 
+
+
+
+
+
+
+
 ###
 GET http://127.0.0.1:8000/api/recipes/
-Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
-
-###
-GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=True
-Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
-
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
 ###
 GET http://127.0.0.1:8000/api/recipes/?author=admin
-Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
-
-###
-GET http://127.0.0.1:8000/api/recipes/
-Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
-
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
 
 
 ###
-GET http://127.0.0.1:8000/api/recipes/9/
-Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+GET http://127.0.0.1:8000/api/recipes/?tags=dinner
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+
+
+
+
+
+###
+GET http://127.0.0.1:8000/api/recipes/?is_favorited=false&author=admin&tags=breakfast
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+
+
+
+###
+GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=false
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+
+
+###
+GET http://127.0.0.1:8000/api/recipes/38/
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
 
 
 
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
-Authorization: Token 816b625f0400602a33f90883f35d65c9ba078a89
+Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
 Content-Type: application/json
 
 {
   "ingredients": [
     {
-      "id": 2,
+      "id": 700,
+      "amount": 11
+    },
+    {
+      "id": 650,
       "amount": 22
     }
   ],
   "tags": [
-    2,
-    1
+    1,
+    2
   ],
-  "image": "77i55m4age",
-  "name": "007ge",
-  "text": "a5g5e4",
-  "cooking_time": 99
+  "image": "image1",
+  "name": "name2",
+  "text": "text1",
+  "cooking_time": 30
 }
 
 
@@ -147,29 +170,3 @@ Content-Type: application/json
 
 
 
-
-
-###
-{
-  "ingredients": [
-    {
-      "name": "55",
-      "measurement_unit": "155"
-    }
-  ],
-  "tags": [
-    {
-      "id": 2,
-      "name": "2Полдник",
-      "slug": "2pol",
-      "color": "#FBCEB1"
-    }
-  ],
-  "image": "CByxOy",
-  "name": "string",
-  "text": "string",
-  "cooking_time": 1
-}
-
-
-###

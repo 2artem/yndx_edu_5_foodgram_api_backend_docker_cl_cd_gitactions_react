@@ -135,6 +135,10 @@ class RecipeIngredientAmountCreateUpdateSerializer(serializers.ModelSerializer):
             'id',
             'amount',
         )
+    #def validate_id(self, value):
+    #    if Ingredient.objects.filter(pk=value):
+    #        raise serializers.ValidationError(f'Недопустимый первичный ключ \"{value}\" - объект не существует.')
+    #    return value
 
 
 
@@ -182,8 +186,17 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 tag=tag, recipe=recipe)
         # Для каждого тега из списка тегов
         for ingredient in ingredients:
-            # Создадим новую запись или получим существующий экземпляр из БД
-            current_ingredient = get_object_or_404(Ingredient, id=ingredient['id'])
+
+            cur_id = ingredient['id']
+            current_ingredient = Ingredient.objects.filter(id=cur_id).first()
+            print(current_ingredient)
+            if not current_ingredient:
+                message = f'Недопустимый первичный ключ "{cur_id}" - объект не существует.'
+                raise serializers.ValidationError(
+                    #
+                    {"ingredients": [ f"{message}"]}
+
+                )
             amount = ingredient['amount']
             # Поместим ссылку на каждое достижение во вспомогательную таблицу
             # Не забыв указать к какому котику оно относится
