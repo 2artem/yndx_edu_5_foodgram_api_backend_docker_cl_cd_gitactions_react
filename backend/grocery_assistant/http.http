@@ -52,7 +52,7 @@ POST http://127.0.0.1:8000/api/auth/token/login/
 Content-Type: application/json
 
 {
-  "email": "admin@mail.ru",
+  "email": "leo@mail.ru",
   "password": "userQW12!"
 }
 
@@ -130,26 +130,30 @@ Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
 
 
 ###
-GET http://127.0.0.1:8000/api/recipes/38/
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+GET http://127.0.0.1:8000/api/recipes/14/
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 
 
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 Content-Type: application/json
 
 {
   "ingredients": [
     {
-      "id": 700,
-      "amount": 11
+      "id": 81,
+      "amount": 22
     },
     {
-      "id": 650,
-      "amount": 22
+      "id": 80,
+      "amount": 7
+    },
+        {
+      "id": 86,
+      "amount": 9
     }
   ],
   "tags": [
@@ -161,6 +165,69 @@ Content-Type: application/json
   "text": "text1",
   "cooking_time": 30
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+GET http://127.0.0.1:8000/api/recipes/29/
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+
+
+
+###
+PATCH http://127.0.0.1:8000/api/recipes/29/
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+Content-Type: application/json
+
+{
+  "ingredients": [
+    {
+      "id": 810,
+      "amount": 22
+    },
+    {
+      "id": 800,
+      "amount": 9
+    },
+        {
+      "id": 806,
+      "amount": 22
+    }
+  ],
+  "tags": [
+    3,
+    1
+  ],
+  "image": "im1",
+  "name": "na1",
+  "text": "te",
+  "cooking_time": 3
+}
+
+
+
+###
+DELETE http://127.0.0.1:8000/api/recipes/30/
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+
+
 
 
 

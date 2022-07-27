@@ -22,7 +22,7 @@ def amount_above_zero_validator(value):
     message = (
         'Количество должно быть больше 0.'
     )
-    if value < 0:
+    if value <= 0:
         raise ValidationError(message)
 
 def hex_field_validator(value):
@@ -212,7 +212,7 @@ class RecipeIngredientRelationship(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='recipe_for_ingredient',
         verbose_name='рецепт',
     )
     amount = models.IntegerField(

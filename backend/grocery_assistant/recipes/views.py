@@ -159,9 +159,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     #filterset_fields = ('is_favorited',)
     '''
     permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
-    search_fields = ('^name',)
     lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)'''
+    '''
+    
     def get_serializer_class(self):
         # При создании или обновлении рецепта, выбираем другой сериализатор
         if self.action == 'create' or self.action == 'partial_update' or self.action == 'update':
@@ -179,7 +179,11 @@ class IngredientViewSet(ListRetrieveModelViewSet):
     """Вьюсет для ."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
+    search_fields = ('^name',)
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)'''
     #Поиск по ингредиентам
 
 #Ищите ингредиенты по полю name регистронезависимо, по вхождению в начало названия.
