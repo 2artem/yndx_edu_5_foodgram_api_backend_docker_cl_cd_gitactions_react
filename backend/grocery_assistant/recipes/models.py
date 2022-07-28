@@ -212,7 +212,7 @@ class RecipeIngredientRelationship(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_for_ingredient',
+        related_name='ingredient_in_recipe',
         verbose_name='рецепт',
     )
     amount = models.IntegerField(

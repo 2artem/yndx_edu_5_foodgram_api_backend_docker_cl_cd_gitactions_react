@@ -24,6 +24,10 @@ from .pagination import TitlesPagination
 from .pagination import ReviewPagination
 from .pagination import CommentPagination
 from .filters import CustomFilter'''
+
+
+from django.http import HttpResponse
+from django.db.models import Sum
 from rest_framework import status
 from rest_framework.response import Response
 from selectors import SelectSelector
@@ -232,14 +236,47 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get']) #perm IsAut
     def download_shopping_cart(self, request):
         '''.'''
-        pass
-        #recipes = Recipe.objects.filter()
-
-
-
-
-
-
+        # Выбираем объекты СВЯЗЕЙ пользователя и рецептов из Списка покупок
+        # из вспомогательной таблицы
+        recipes_user_in_shoplist = ShoppingUserList.objects.filter(user=request.user)
+        # Выбираем объекты РЕЦЕПТОВ пользователя из Списка покупок
+        recipes = Recipe.objects.filter(
+            recipe_in_shoplist__in=recipes_user_in_shoplist
+        )
+        # Выбираем объекты всех ИНГРИДИЕНТОВ 
+        # у которых в связующей таблице, рецепты равны - рецептам из выборки
+        ingredients = Ingredient.objects.filter(
+            ingredient_in_recipe__recipe__in=recipes
+        )
+        # тематически объединяем одинаковые ИНГРИДИЕНТЫ,
+        # добавляя аннотацию для каждого объекта - сумму количества ингредиентов
+        queryset_ingredients = ingredients.annotate(
+            sum_amount_ingredients=(Sum('ingredient_in_recipe__amount'))
+        )
+        # генерация файла со списком ингридиентов
+        # для изготовления всех рецептов из списка покупок
+        content = (
+            'Ваш сервис, Продуктовый помощник, подготовил \nсписок '
+            +'покупок по выбранным рецептам:\n'
+            + 50*'_'
+            +'\n\n'
+        )
+        if not queryset_ingredients:
+            content += (
+                'К сожалению, в списке ваших покупок пусто - '
+                +'поскольку Вы не добавили в него ни одного рецепта.'
+            )
+        else:
+            for ingr in queryset_ingredients:
+                content += (
+                    f'\t•\t{ingr.name} ({ingr.measurement_unit}) — '
+                    +f'{ingr.sum_amount_ingredients}\n\n'
+                )
+        # Вывод файла
+        filename = 'my_shopping_cart.txt'
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+        return response
 
 
 class TagViewSet(ListRetrieveModelViewSet):

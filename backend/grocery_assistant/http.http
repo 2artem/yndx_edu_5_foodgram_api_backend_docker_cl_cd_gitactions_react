@@ -151,16 +151,16 @@ Content-Type: application/json
 {
   "ingredients": [
     {
-      "id": 81,
-      "amount": 22
+      "id": 100,
+      "amount": 15
     },
     {
-      "id": 80,
-      "amount": 7
+      "id": 200,
+      "amount": 15
     },
-        {
-      "id": 86,
-      "amount": 9
+    {
+      "id": 300,
+      "amount": 15
     }
   ],
   "tags": [
@@ -168,8 +168,8 @@ Content-Type: application/json
     2
   ],
   "image": "image1",
-  "name": "name2",
-  "text": "text1",
+  "name": "one",
+  "text": "1",
   "cooking_time": 30
 }
 
@@ -206,16 +206,16 @@ Content-Type: application/json
 {
   "ingredients": [
     {
-      "id": 810,
-      "amount": 22
+      "id": 100,
+      "amount": 15
     },
     {
-      "id": 800,
-      "amount": 9
+      "id": 200,
+      "amount": 15
     },
         {
-      "id": 806,
-      "amount": 22
+      "id": 300,
+      "amount": 15
     }
   ],
   "tags": [
@@ -223,8 +223,8 @@ Content-Type: application/json
     1
   ],
   "image": "im1",
-  "name": "na1",
-  "text": "te",
+  "name": "one",
+  "text": "1",
   "cooking_time": 3
 }
 
@@ -274,3 +274,12 @@ Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 ###
 DELETE http://127.0.0.1:8000/api/recipes/10/shopping_cart/
 Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
+
+
+
+###
+GET http://127.0.0.1:8000/api/recipes/download_shopping_cart/
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
+
+
+
