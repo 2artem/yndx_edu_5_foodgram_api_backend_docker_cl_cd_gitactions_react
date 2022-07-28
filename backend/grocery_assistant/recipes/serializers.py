@@ -105,7 +105,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         # Если пользователь не аноним и подписка существует
         if (user != AnonymousUser()
-            and FavoritesRecipesUserList.objects.filter(user=user ,favorit_recipe=obj.pk).exists()):
+            and FavoritesRecipesUserList.objects.filter(user=user ,recipe=obj.pk).exists()):
             return True
         return False
 
@@ -114,7 +114,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         # Если пользователь не аноним и подписка существует
         if (user != AnonymousUser()
-            and ShoppingUserList.objects.filter(user=user ,recipe_in_shoplist=obj.pk).exists()):
+            and ShoppingUserList.objects.filter(user=user ,recipe=obj.pk).exists()):
             return True
         return False
 

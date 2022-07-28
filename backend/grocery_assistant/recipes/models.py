@@ -249,7 +249,7 @@ class FavoritesRecipesUserList(models.Model):
         related_name='user1',
         verbose_name='Пользователь, имеющий избранные рецепты',
     )
-    favorit_recipe = models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorit_recipe',
@@ -261,14 +261,14 @@ class FavoritesRecipesUserList(models.Model):
         constraints = [
             models.UniqueConstraint(
                 name="unique_relationships4",
-                fields=['user', 'favorit_recipe'],
+                fields=['user', 'recipe'],
             ),
         ]
 
     def __str__(self):
         return 'У {} в избранном рецепт: {}'.format(
             self.user,
-            self.favorit_recipe
+            self.recipe
         )
 
 
@@ -279,7 +279,7 @@ class ShoppingUserList(models.Model):
         #related_name='user',
         verbose_name='Пользователь, имеющий рецепт в Списке покупок',
     )
-    recipe_in_shoplist = models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='recipe_in_shoplist',
@@ -291,14 +291,14 @@ class ShoppingUserList(models.Model):
         constraints = [
             models.UniqueConstraint(
                 name="unique_relationships5",
-                fields=['user', 'recipe_in_shoplist'],
+                fields=['user', 'recipe'],
             ),
         ]
 
     def __str__(self):
         return 'У {} в Списке покупок рецепт: {}'.format(
             self.user,
-            self.recipe_in_shoplist
+            self.recipe
         )
         # return f'{self.achievement} {self.cat}'
 

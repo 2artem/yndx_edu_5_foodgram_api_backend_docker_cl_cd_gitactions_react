@@ -1,4 +1,6 @@
 GET http://127.0.0.1:8000/api/users/
+
+
 ###
 ###GET http://127.0.0.1:8000/api/download_data/
 
@@ -19,7 +21,7 @@ Authorization: Token b3aba692a330a8e32b94c5cfd1a4edc3a2ed1126
 
 ###
 GET http://127.0.0.1:8000/api/users/me/
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 
 ###
@@ -62,6 +64,11 @@ Authorization: Token 309a5a8189d51130ca45d736cb6bc2361c4083a5
 
 ###
 GET http://127.0.0.1:8000/api/recipes/
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+
+###
+GET http://127.0.0.1:8000/api/recipes/35/
+Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
@@ -88,7 +95,7 @@ GET http://127.0.0.1:8000/api/tags/
 ###
 GET http://127.0.0.1:8000/api/tags/1/
 ###
-GET http://127.0.0.1:8000/api/ingredients/
+GET http://127.0.0.1:8000/api/ingredients/?search=огу
 ###
 GET http://127.0.0.1:8000/api/ingredients/1/
 
@@ -130,7 +137,7 @@ Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
 
 
 ###
-GET http://127.0.0.1:8000/api/recipes/14/
+GET http://127.0.0.1:8000/api/recipes/2/
 Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 
@@ -138,7 +145,7 @@ Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 Content-Type: application/json
 
 {
@@ -186,14 +193,14 @@ Content-Type: application/json
 
 
 ###
-GET http://127.0.0.1:8000/api/recipes/29/
+GET http://127.0.0.1:8000/api/recipes/17/
 Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 
 
 ###
 PATCH http://127.0.0.1:8000/api/recipes/29/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 Content-Type: application/json
 
 {
@@ -224,16 +231,46 @@ Content-Type: application/json
 
 
 ###
-DELETE http://127.0.0.1:8000/api/recipes/30/
+DELETE http://127.0.0.1:8000/api/recipes/29/
 Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 
 
+###
+GET http://127.0.0.1:8000/api/users/subscriptions/
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
+
+
+
+
+###
+GET http://127.0.0.1:8000/api/recipes/2/
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 
 
 
 
 
 
+###
+POST http://127.0.0.1:8000/api/recipes/10/favorite/
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 
 
+###
+DELETE http://127.0.0.1:8000/api/recipes/10/favorite/
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
+
+
+
+
+
+
+###
+POST http://127.0.0.1:8000/api/recipes/10/shopping_cart/
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
+
+
+###
+DELETE http://127.0.0.1:8000/api/recipes/10/shopping_cart/
+Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913

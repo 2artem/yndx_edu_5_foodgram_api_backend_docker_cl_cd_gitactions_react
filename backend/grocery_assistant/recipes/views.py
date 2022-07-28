@@ -24,15 +24,20 @@ from .pagination import TitlesPagination
 from .pagination import ReviewPagination
 from .pagination import CommentPagination
 from .filters import CustomFilter'''
-
+from rest_framework import status
+from rest_framework.response import Response
+from selectors import SelectSelector
+from rest_framework.decorators import action
+from urllib3 import HTTPResponse
 from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer, RecipeCreateUpdateSerializer
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from .models import Recipe, Tag, Ingredient
+from .models import Recipe, Tag, Ingredient, FavoritesRecipesUserList, ShoppingUserList, RecipeIngredientRelationship
 from rest_framework import mixins
 from .pagination import RecipePagination
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CustomRecipeFilterSet
+from rest_framework import filters
 
 
 
@@ -144,29 +149,96 @@ class CommentViewSet(viewsets.ModelViewSet):
         '''
 
 
+def post_delete_relationship_user_with_object(
+    request,
+    pk,
+    model,
+    message):
+    '''Добавление и удаление рецепта в связующей таблице для пользователя.'''
+    # получаем рецепт по первичному ключу id
+    recipe = get_object_or_404(Recipe, id=pk)
+    if request.method == 'POST':
+        # проверяем что это будет не повторное добавление в рецепта в связующую таблицу
+        if model.objects.filter(
+            recipe=recipe,
+            user=request.user).exists():
+            return Response(
+                {'errors': f'Рецепт с номером {pk} уже у Вас в {message}.'},
+                status=status.HTTP_400_BAD_REQUEST)
+        model.objects.create(
+            recipe=recipe,
+            user=request.user
+        )
+        text = {
+            'id': recipe.id,
+            'name': recipe.name,
+            'image': recipe.image,
+            'cooking_time': recipe.cooking_time
+        }
+        return Response(text ,status=status.HTTP_201_CREATED)
+    # если метод delete
+    # проверяем есть ли рецепт в связующей таблице
+    obj_recipe = model.objects.filter(
+        recipe=recipe,
+        user=request.user
+    )
+    if obj_recipe:
+        obj_recipe.delete()
+        # удаляем рецепт из связующей таблицы, если он там
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    # иначе говорим что в не было
+    return Response(
+        {'errors': f'Рецепта с номером {pk} нет у Вас в {message}.'},
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для Category."""
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = RecipePagination
-    # Указываем фильтрующий бэкенд DjangoFilterBackend
-    # Из библиотеки django-filter
     filter_backends = (DjangoFilterBackend,)
-    # Фильтровать будем по пол tags модели Recipe
-    #filterset_fields = ('tags',)
     filterset_class = CustomRecipeFilterSet
+    #permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
 
-    #filterset_fields = ('is_favorited',)
-    '''
-    permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
-    lookup_field = 'slug'
-    '''
-    
     def get_serializer_class(self):
         # При создании или обновлении рецепта, выбираем другой сериализатор
+        # if self.request.method in ('POST', 'PATCH'):
         if self.action == 'create' or self.action == 'partial_update' or self.action == 'update':
             return RecipeCreateUpdateSerializer
         return RecipeSerializer
+    
+    @action(detail=True, methods=['post', 'delete']) #perm IsAut
+    def favorite(self, request, pk=None):
+        '''.'''
+        return post_delete_relationship_user_with_object(
+            request=request,
+            pk=pk,
+            model=FavoritesRecipesUserList,
+            message='избранном'
+        )
+
+    @action(detail=True, methods=['post', 'delete']) #perm IsAut
+    def shopping_cart(self, request, pk=None):
+        '''.'''
+        return post_delete_relationship_user_with_object(
+            request=request,
+            pk=pk,
+            model=ShoppingUserList,
+            message='списке покупок'
+        )
+
+    @action(detail=False, methods=['get']) #perm IsAut
+    def download_shopping_cart(self, request):
+        '''.'''
+        pass
+        #recipes = Recipe.objects.filter()
+
+
+
+
+
 
 
 
@@ -174,24 +246,14 @@ class TagViewSet(ListRetrieveModelViewSet):
     """Вьюсет для ."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
+    #permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,) ADMIN ili READONLY
 
 class IngredientViewSet(ListRetrieveModelViewSet):
     """Вьюсет для ."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    '''
-    permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
+    filter_backends = (filters.SearchFilter,)
+    pagination_class = None
     search_fields = ('^name',)
-    lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)'''
-    #Поиск по ингредиентам
-
-#Ищите ингредиенты по полю name регистронезависимо, по вхождению в начало названия.
-
-#В качестве усложнения можно сделать двойную фильтрацию:
-###	по вхождению в начало названия;
-### по вхождению в произвольном месте.
-
-#Сортировка в таком случае должна быть от первых ко вторым.
-
-
+    #permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,) ADMIN ili READONLY

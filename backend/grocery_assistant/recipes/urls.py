@@ -44,5 +44,6 @@ router.register(r'ingredients',
 
 urlpatterns = [
     #path('download_data/', myload),
+
     path('', include(router.urls)),
 ]

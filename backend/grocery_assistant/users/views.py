@@ -8,7 +8,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .pagination import UserPagination
-from .serializers import UserSerializer, SetPasswordSerializer
+from .serializers import UserSerializer, SetPasswordSerializer, MySubscriptionsSerializer
 from .permissions import UnAuthUsersViewUsersListAndMaySignToAPI
 from rest_framework.decorators import api_view
 from .serializers import FollowSerializer
@@ -34,6 +34,8 @@ class UserViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
     #    AdminAllPermissionOrMeURLGetUPDMyself,
     )
+
+    
     def get_serializer_class(self):
         # При создании нового пользователя, выбираем другой сериализатор
         if self.action == 'create':
@@ -68,39 +70,39 @@ class UserViewSet(viewsets.ModelViewSet):
                 return Response({'current_password': 'Вы ввели неверный пароль'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# 
 
-        '''# Если username и email не переданы
-        request.POST._mutable = True
-        request.data['email'] = request.user.email
-        request.data['username'] = request.user.username
-        request.POST._mutable = False
-        # Сериализуем данные
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            # Проверка что роль может изменить только admin или superuser
-            if 'role' in request.data:
-                if user.is_superuser or user.is_admin:
-                    serializer.save()
-                    return Response(
-                        serializer.data,
-                        status=status.HTTP_200_OK
-                    )
-                return Response(
-                    {'role': 'user'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
 
+
+
+
+
+####@action(detail=False, permission_classes=[permissions.IsAuthenticated])
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
-        """Метод обрабатывающий эндпоинт 'subscriptions'."""
-        return Response(
-                    {'role2': 'use2r'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        '''
+        #Метод обрабатывающий эндпоинт 'subscriptions'.
+        #Возвращает пользователей, на которых подписан текущий пользователь. В выдачу добавляются рецепты.
+        '''
+
+
+        # авторизованный юзер
+        user = request.user
+        # объекты пользователей в связующей таблице Follow, где
+        # все поля following(на кого подписан) связаны с пользователем из токена
+        queryset = User.objects.filter(following__user=user)
+ 
+
+
+        pages = self.paginate_queryset(queryset)
+        serializer = MySubscriptionsSerializer(
+            data=pages, many=True, context={"request": request}
+        )
+        serializer.is_valid()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+#
+
+
 
 '''class SubscribeViewSet(viewsets.ModelViewSet):
     """Вьюсет для Review."""
@@ -131,6 +133,9 @@ class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     возвращает список объектов (для обработки запросов GET).
     """
     pass
+
+
+
 
 
 class FollowViewSet(CreateListViewSet):

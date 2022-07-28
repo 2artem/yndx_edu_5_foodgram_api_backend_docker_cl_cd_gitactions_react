@@ -61,7 +61,7 @@ class FavoritesRecipesUserListAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'user',
-        'favorit_recipe',
+        'recipe',
     )
 
 
@@ -71,7 +71,7 @@ class ShoppingUserListAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'user',
-        'recipe_in_shoplist',
+        'recipe',
     )
 
 
