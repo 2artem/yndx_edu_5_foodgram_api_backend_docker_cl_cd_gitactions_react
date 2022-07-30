@@ -1,31 +1,33 @@
 from rest_framework import permissions
-
-
-class AdminAllPermission(permissions.BasePermission):
-    """
-    Кастомный пермишн для работы администратора c небезопасными методами.
-    """
-
-    def has_permission(self, request, view):
-        """Переопределяем стандартный метод has_permission."""
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return bool(request.user.is_superuser or request.user.is_admin)
+from django.urls import reverse
 
 
 class AdminAllOnlyAuthorPermission(permissions.BasePermission):
     """
-    Кастомный пермишн для работы администратора
+    Кастомный пермишн для работы администратора и
     автора объекта c небезопасными методами.
     """
+    # права на уровне запроса и пользователя
+    def has_permission(self, request, view):
+        return True
+        #return (
+        #        request.method in permissions.SAFE_METHODS
+        #        or request.user.is_authenticated
+        #    )
 
+
+        #return bool(request.user.is_superuser or request.user.is_admin)
+
+        #if request.path == reverse('user-detail', kwargs={'username': 'me'}):
+        #    # Если страница me, даем доступ
+        #    return True
+        # Если соответствующие эндпоинты users
+        #return bool(request.user.is_superuser or request.user.is_admin)
+
+    # права на уровне объекта
     def has_object_permission(self, request, view, obj):
-        """Переопределяем стандартный метод has_object_permission."""
-        if request.method in permissions.SAFE_METHODS:
-            return True
         return bool(
             request.user.is_superuser
-            or request.user.is_admin
-            or request.user.is_moderator
             or obj.author == request.user
+            or request.user.groups.filter(name='recipes_admin').exists()
         )

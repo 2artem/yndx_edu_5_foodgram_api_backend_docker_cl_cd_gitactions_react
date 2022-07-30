@@ -1,18 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .pagination import UserPagination
 from .serializers import UserSerializer, SetPasswordSerializer, SubscriptionsSerializer
-from .permissions import UnAuthUsersViewUsersListAndMaySignToAPI
-from .serializers import FollowSerializer
 from .serializers import NewUserSerializer
 from .models import Follow
-from rest_framework import mixins
 from django.contrib.auth.hashers import make_password, check_password
 
 
@@ -24,23 +20,21 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = UserPagination
-    #permission_classes = (
-        #UnAuthUsersViewUsersListAndMaySignToAPI,
-    #    permissions.IsAuthenticated,
-    #    AdminAllPermissionOrMeURLGetUPDMyself,
-    #)
+    permission_classes = (permissions.IsAuthenticated,)
 
-    
+    def get_permissions(self):
+        # Если GET-list или POST запрос
+        if self.action == 'list' or self.action == 'create':
+            # Можно все
+            return (permissions.AllowAny(),)
+        # Для остальных ситуаций оставим текущий перечень пермишенов без изменений
+        return super().get_permissions() 
+
     def get_serializer_class(self):
         # При создании нового пользователя, выбираем другой сериализатор
         if self.action == 'create':
             return NewUserSerializer
         return UserSerializer
-    
-    def get_permissions(self):
-        if self.action == 'list' or self.action == 'create':
-            return (UnAuthUsersViewUsersListAndMaySignToAPI(),)
-        return super().get_permissions()
 
     @action(detail=False, methods=['get'])
     def me(self, request):
@@ -65,14 +59,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 return Response({'current_password': 'Вы ввели неверный пароль'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
-
-
-####@action(detail=False, permission_classes=[permissions.IsAuthenticated])
-    @action(detail=False, methods=['get'])#, pagination_class=SubscriptionsPagination)
+    @action(detail=False, methods=['get'])
     def subscriptions(self, request):
         '''
         #Метод обрабатывающий эндпоинт 'subscriptions'.
@@ -137,28 +124,3 @@ class UserViewSet(viewsets.ModelViewSet):
             {'errors': f'Вы не были подписаны на пользователя {interes_user.username}.'},
             status=status.HTTP_400_BAD_REQUEST
         )
-
-
-class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                        viewsets.GenericViewSet):
-    """
-    Кастомный базовый вьюсет:
-    Создает объект (для обработки запросов POST) и
-    возвращает список объектов (для обработки запросов GET).
-    """
-    pass
-
-class FollowViewSet(CreateListViewSet):
-    """Предустановленный класс для работы с моделью Follow."""
-    serializer_class = FollowSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^following__username',)
-
-    def get_queryset(self):
-        """Изменяем базовый QuerySet, переопределив метод get_queryset."""
-        new_qweryset = Follow.objects.filter(user=self.request.user)
-        return new_qweryset
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)

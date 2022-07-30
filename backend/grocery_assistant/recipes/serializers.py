@@ -184,22 +184,24 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         '''На вывод возвращаем рецепт через другой сериалайзер.'''
         return RecipeSerializer(instance, context=self.context).data
-    
-    def validate(self, data):
-        '''Проверяем уникальность введенных ингридиентов и тегов в рецепте.'''
+
+    def validate_tags(self, value):
+        #Проверяем уникальность введенных ингридиентов и тегов в рецепте.
         # Проверим теги в запросе на уникальность
-        tags = data.get('tags')
+        tags = value
         all_tags_request = len(tags)
         uniq_tags = set()
         for tag in tags:
             uniq_tags.add(tag.pk)
         if len(uniq_tags) != all_tags_request:
-            raise serializers.ValidationError(
-                {"tags": ["Теги должны быть уникальными."]}
-            )
+            raise serializers.ValidationError('Теги должны быть уникальными.')
+        return value 
+
+
+    def validate_ingredients(self, value):
         # Проверим ингридиенты в запросе на уникальность
         # и то, что количество не меньше 0
-        ingredients = data.get('recipe_for_ingredient')
+        ingredients = value
         all_ingredients_request = len(ingredients)
         uniq_ingredients = set()
         list_null_amount = list()
@@ -216,15 +218,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 )
             uniq_ingredients.add(id)
         if len(uniq_ingredients) != all_ingredients_request:
-            raise serializers.ValidationError(
-                {"ingredients": ["Ингридиенты должны быть уникальными."]}
-            )
+            raise serializers.ValidationError('Ингридиенты должны быть уникальными.')
         if list_null_amount:
-            raise serializers.ValidationError(
-                {"ingredients": list_null_amount}
-            )
-        return data
-
+            raise serializers.ValidationError(list_null_amount)
+        return value 
 
 
     def create(self, validated_data):
@@ -250,55 +247,31 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
 
     def update(self, instance, validated_data):
-        '''Переопределение обновления рецепта.'''
-
-
-        # автора беру из токена или из Инстанс???
-        author = self.context.get('request').user
-
-    
+        '''Переопределение обновления рецепта.''' 
         try:
             with transaction.atomic():
                 # достаем редактируемый рецепт
                 current_obj_recipe = get_object_or_404(Recipe, id=instance.pk)
-                # чистим связи рецепта с тегами
-                records_tag_recipe = RecipeTagRelationship.objects.filter(recipe=current_obj_recipe)
-                for record in records_tag_recipe:
-                   record.delete()
-                # чистим свзяи с ингридиентами
-                records_ingredient_recipe = RecipeIngredientRelationship.objects.filter(recipe=current_obj_recipe)
-                for record in records_ingredient_recipe:
-                    record.delete()
-                # Входные данные
-                ingredients = validated_data.pop('recipe_for_ingredient')
-                tags = validated_data.pop('tags')
-                # создадим отношения между тегами и рецептами в Связующей таблице
-                create_relationship_tag_recipe(tags, current_obj_recipe)
-                # создадим отношения между ингридиентами и рецептами в Связующей таблице,
-                # если такие есть в БД
-                create_relationship_ingredient_recipe(ingredients, current_obj_recipe)
-                instance.image = validated_data.get('image', instance.image)
-                instance.name = validated_data.get('name', instance.name)
-                instance.text = validated_data.get('text', instance.text)
-                instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
-                instance.save()
+                # если были переданы ингридиенты
+                if validated_data.get('recipe_for_ingredient'):
+                    # чистим связи с ингридиентами
+                    records_ingredient_recipe = RecipeIngredientRelationship.objects.filter(recipe=current_obj_recipe)
+                    for record in records_ingredient_recipe:
+                        record.delete()
+                    # Входные данные
+                    ingredients = validated_data.pop('recipe_for_ingredient')
+                    # создадим отношения между ингридиентами и рецептами в Связующей таблице,
+                    # если такие есть в БД
+                    create_relationship_ingredient_recipe(ingredients, current_obj_recipe)
+                if validated_data.get('tags'):
+                    # чистим связи рецепта с тегами
+                    records_tag_recipe = RecipeTagRelationship.objects.filter(recipe=current_obj_recipe)
+                    for record in records_tag_recipe:
+                        record.delete()
+                    # Входные данные
+                    tags = validated_data.pop('tags')
+                    # создадим отношения между тегами и рецептами в Связующей таблице
+                    create_relationship_tag_recipe(tags, current_obj_recipe)
         except IntegrityError:
             raise serializers.ValidationError(validated_data, status.HTTP_400_BAD_REQUEST)
-        return instance
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
- 
+        return super().update(instance, validated_data)

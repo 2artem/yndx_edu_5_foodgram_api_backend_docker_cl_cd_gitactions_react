@@ -1,17 +1,75 @@
+# версия docker-compose
 version: '3.3'
-services:
 
+# имена и описания контейнеров, которые должны быть развёрнуты
+services:
+  # описание контейнера
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+    # volume и связанная с ним директория в контейнере
     volumes:
       - ../frontend/:/app/result_build/
+    #depends_on:
+      #- web
+  db:
+    # образ, из которого должен быть запущен контейнер
+    image: postgres:13.0-alpine
+    # volume и связанная с ним директория в контейнере
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    # адрес файла, где хранятся переменные окружения
+    env_file:
+      - ./.env
+
+  web:
+    build: ../backend/grocery_assistant
+    restart: always
+    volumes:
+      # Контейнер web будет работать с данными, хранящиеся в томе static_value, 
+      # через свою директорию /app/static/
+      - static_value:/app/backend_static/
+      # Данные, хранящиеся в томе media_value, будут доступны в контейнере web 
+      # через директорию /app/media/
+      - media_value:/app/media/
+    # «зависит от», 
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+
+
   nginx:
+    # образ, из которого должен быть запущен контейнер
     image: nginx:1.19.3
+    # запросы с внешнего порта 80 перенаправляем на внутренний порт 80
     ports:
       - "80:80"
     volumes:
+      # При сборке скопировать созданный конфиг nginx из исходной директории 
+      # в контейнер и сохранить его в директорию /etc/nginx/conf.d/
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      #
+      - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
+      #
+      - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
+      
+      # Контейнер nginx будет работать с данными, хранящиеся в томе static_value, 
+      # через свою директорию /var/html/static/
+      - static_value:/usr/share/html/backend_static/:ro
+      # Данные, хранящиеся в томе media_value, будут доступны в контейнере nginx
+      # через директорию /var/html/media/
+      - media_value:/usr/share/html/media/:ro
+    depends_on:
+      # Контейнер nginx должен быть запущен после контейнера web
+      - web
+
+volumes:
+  # Новые тома
+  postgres_data:
+  static_value:
+  media_value:
+

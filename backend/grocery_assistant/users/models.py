@@ -13,9 +13,6 @@ from django.contrib.auth.password_validation import validate_password
 
 from .managers import CustomUserManager
 
-USER = 'user'
-ADMIN = 'admin'
-
 
 def username_validator_not_past_me(value):
     '''Проверка что username не равно me.'''
@@ -28,22 +25,10 @@ def username_validator_not_past_me(value):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    '''.'''
+    '''Кастомная модель Юзера.'''
     username_validator = UnicodeUsernameValidator()
-    # Роли
-    ROLE = (
-        (USER, 'Пользователь'),
-        (ADMIN, 'Администратор')
-    )
-    role = models.CharField(
-        'Роль',
-        max_length=9,
-        choices=ROLE,
-        default=USER,
-    )
     # Логин
     username = models.CharField(
-        #_('username'),
         'Логин',
         max_length=150,
         unique=True,
@@ -81,9 +66,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
-    @property
-    def is_admin(self):
-        return self.role == ADMIN
 
     objects = CustomUserManager()
 

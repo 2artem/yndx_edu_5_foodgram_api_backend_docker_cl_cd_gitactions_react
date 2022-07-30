@@ -4,7 +4,7 @@ GET http://127.0.0.1:8000/api/users/?limit=1&page=2
 GET http://127.0.0.1:8000/api/users/
 ###
 GET http://127.0.0.1:8000/api/users/
-Authorization: Token b09c57acc2fc5fa3831e2eba9289d121f1fd41ab
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
 
 
 
@@ -16,8 +16,8 @@ POST http://127.0.0.1:8000/api/users/
 Content-Type: application/json
 
 {
-  "email": "p6@mail.ru",
-  "username": "p6",
+  "email": "p86@mail.ru",
+  "username": "p86",
   "first_name": "p6",
   "last_name": "p6",
   "password": "userQW12!"
@@ -30,19 +30,40 @@ Content-Type: application/json
 GET http://127.0.0.1:8000/api/users/2/
 ###
 GET http://127.0.0.1:8000/api/users/2/
-Authorization: Token b09c57acc2fc5fa3831e2eba9289d121f1fd41ab
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
 
 
 
 
+
+
+#4. Текущий пользователь     !!      auth
 ###
 GET http://127.0.0.1:8000/api/users/me/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+###
+GET http://127.0.0.1:8000/api/users/me/
 
+
+
+
+
+
+
+#5.   Изменение пароля   !!      auth
 
 ###
 POST http://127.0.0.1:8000/api/users/set_password/
-Authorization: Token 412942be3b818b5e76a8aaed69ba4bd4c7948da5
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+Content-Type: application/json
+
+{
+  "current_password": "userQW12!",
+  "new_password": "use266612!"
+}
+
+###
+POST http://127.0.0.1:8000/api/users/set_password/
 Content-Type: application/json
 
 {
@@ -52,13 +73,11 @@ Content-Type: application/json
 
 
 
-###
-GET http://127.0.0.1:8000/api/users/subscriptions/
-###
-GET http://127.0.0.1:8000/api/users/3/subscribe/
 
 
 
+
+#6.   Получить токен авторизации   !!      auth
 ###
 POST http://127.0.0.1:8000/api/auth/token/login/
 Content-Type: application/json
@@ -68,46 +87,61 @@ Content-Type: application/json
   "password": "userQW12!"
 }
 
+
+
+
+
+#7. Удаление токена
 ###
 POST http://127.0.0.1:8000/api/auth/token/logout/
-Authorization: Token 309a5a8189d51130ca45d736cb6bc2361c4083a5
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Authorization: Token 
 
 ###
-GET http://127.0.0.1:8000/api/recipes/?limit=2&page=4
-Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+POST http://127.0.0.1:8000/api/auth/token/logout/
 
+
+
+
+
+#8.
 ###
-GET http://127.0.0.1:8000/api/recipes/
+GET http://127.0.0.1:8000/api/users/subscriptions/?limit=1
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+###
+GET http://127.0.0.1:8000/api/users/subscriptions/?limit=1
 
 
 
 
 
+#9.
+###
+POST http://127.0.0.1:8000/api/users/1/subscribe/?recipes_limit=2
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+###
+POST http://127.0.0.1:8000/api/users/1/subscribe/?recipes_limit=2
+
+
+
+
+#10.
+###
+DELETE http://127.0.0.1:8000/api/users/1/subscribe/
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+###
+DELETE http://127.0.0.1:8000/api/users/1/subscribe/
 
 
 
 
 
-
-
-
-
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
 
 
@@ -121,17 +155,11 @@ GET http://127.0.0.1:8000/api/tags/1/
 
 
 
-
-
-
-
-
-
+###
+GET http://127.0.0.1:8000/api/ingredients/
 ###
 GET http://127.0.0.1:8000/api/ingredients/?name=лим
 
-###
-GET http://127.0.0.1:8000/api/ingredients/?search=виш
 ###
 GET http://127.0.0.1:8000/api/ingredients/1/
 
@@ -140,49 +168,123 @@ GET http://127.0.0.1:8000/api/ingredients/1/
 
 
 
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
 
 
 
-
+# все
 ###
 GET http://127.0.0.1:8000/api/recipes/
-Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+###
+GET http://127.0.0.1:8000/api/recipes/
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+
+
+
+# pagination
+###
+GET http://127.0.0.1:8000/api/recipes/?limit=2&page=2
+
+
+
+
+#fVORIT
+###
+GET http://127.0.0.1:8000/api/recipes/?is_favorited=true
+###
+GET http://127.0.0.1:8000/api/recipes/?is_favorited=false
+###
+GET http://127.0.0.1:8000/api/recipes/?is_favorited=true
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+###
+GET http://127.0.0.1:8000/api/recipes/?is_favorited=false
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+
+###
+GET http://127.0.0.1:8000/api/recipes/?is_favorited=fgggggggalse
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+
+
+
+
+#fVORIT
+###
+GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=true
+###
+GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=false
+###
+GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=true
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+###
+GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=false
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+
+###
+GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=fgggggggalse
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+
+
+
 
 ###
 GET http://127.0.0.1:8000/api/recipes/?author=admin
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+
+
 
 
 ###
 GET http://127.0.0.1:8000/api/recipes/?tags=dinner
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+
+##########################################################################################
+##########################################################################################
 
 
-
-
-##############
+# создание рецепта
+#200
+#401
+#400
 ###
-GET http://127.0.0.1:8000/api/recipes/?author=admin
-Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+POST http://127.0.0.1:8000/api/recipes/
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+Content-Type: application/json
 
-
-
-###
-GET http://127.0.0.1:8000/api/recipes/?is_in_shopping_cart=false
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
-
-
-###
-GET http://127.0.0.1:8000/api/recipes/2/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+{
+  "ingredients": [
+    {
+      "id": 100,
+      "amount": 15
+    },
+    {
+      "id": 200,
+      "amount": 15
+    },
+    {
+      "id": 300,
+      "amount": 7
+    }
+  ],
+  "tags": [
+    1,
+    2
+  ],
+  "image": "R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+  "name": "моой",
+  "text": "мой",
+  "cooking_time": 30
+}
 
 
 
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
-Authorization: Token b09c57acc2fc5fa3831e2eba9289d121f1fd41ab
 Content-Type: application/json
 
 {
@@ -202,11 +304,11 @@ Content-Type: application/json
   ],
   "tags": [
     1,
-    2
+    3
   ],
   "image": "R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-  "name": "one",
-  "text": "1",
+  "name": "моой",
+  "text": "мой",
   "cooking_time": 30
 }
 
@@ -215,73 +317,61 @@ Content-Type: application/json
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# detail - рецепт
 
 ###
-GET http://127.0.0.1:8000/api/recipes/17/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
+GET http://127.0.0.1:8000/api/recipes/2/
+###
+GET http://127.0.0.1:8000/api/recipes/2/
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+
+
+# recipes_admin
+
+
+
+
+
+
+
 
 
 
 ###
 #PUT
 ###
-PATCH http://127.0.0.1:8000/api/recipes/2/
-Authorization: Token b09c57acc2fc5fa3831e2eba9289d121f1fd41ab
+PATCH http://127.0.0.1:8000/api/recipes/3/
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
 Content-Type: application/json
 
 {
   "ingredients": [
     {
-      "id": 100,
-      "amount": 15
-    },
-    {
-      "id": 200,
-      "amount": 15
-    },
-        {
-      "id": 300,
+      "id": 600,
       "amount": 15
     }
   ],
   "tags": [
-    3,
     1
   ],
   "image": "R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-  "name": "on8e",
-  "text": "81",
-  "cooking_time": 30
+  "name": "1",
+  "text": "1",
+  "cooking_time": 1
 }
 
 
-
+# удаление
 ###
-DELETE http://127.0.0.1:8000/api/recipes/29/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
-
-
-
-
-
-
-
+DELETE http://127.0.0.1:8000/api/recipes/12/
 ###
-GET http://127.0.0.1:8000/api/recipes/2/
-Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
+DELETE http://127.0.0.1:8000/api/recipes/12/
+Authorization: Token 7438d9351fcad12b8ebbe09824c493d39b9053aa
+
+
+
+
+
 
 
 
@@ -332,29 +422,3 @@ Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 
 
 
-
-###
-POST http://127.0.0.1:8000/api/users/1/subscribe/?recipes_limit=2
-Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
-
-
-###
-DELETE http://127.0.0.1:8000/api/users/1/subscribe/
-Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
-
-
-
-
-
-###
-GET http://127.0.0.1:8000/api/users/subscriptions/?limit=1
-Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
-
-
-
-
-
-
-###
-GET http://127.0.0.1:8000/api/users/?limit=1&page=2
-Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
