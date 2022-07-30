@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import BasePagination, PageNumberPagination
 from rest_framework import status
 from rest_framework import filters
 from rest_framework import permissions
@@ -8,7 +9,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .pagination import UserPagination
-from .serializers import UserSerializer, SetPasswordSerializer, MySubscriptionsSerializer
+from .serializers import UserSerializer, SetPasswordSerializer, SubscriptionsSerializer
 from .permissions import UnAuthUsersViewUsersListAndMaySignToAPI
 from rest_framework.decorators import api_view
 from .serializers import FollowSerializer
@@ -26,7 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
     #lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    pagination_class = UserPagination # LimitOffsetPagination
+    pagination_class = UserPagination
     #filter_backends = (filters.SearchFilter,)
     #search_fields = ('^username',)
     permission_classes = (
@@ -94,36 +95,59 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
         pages = self.paginate_queryset(queryset)
-        serializer = MySubscriptionsSerializer(
+        serializer = SubscriptionsSerializer(
             data=pages, many=True, context={"request": request}
         )
         serializer.is_valid()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-#
 
 
 
-'''class SubscribeViewSet(viewsets.ModelViewSet):
-    """Вьюсет для Review."""
-    serializer_class = ReviewSerializer
-    #permission_classes = (
-    #    IsAuthenticatedOrReadOnly,
-    #    AdminAllOnlyAuthorPermission,
-    #)
-    #filter_backends = (filters.SearchFilter,)
-    #pagination_class = ReviewPagination
 
-    def get_queryset(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        new_qweryset = Review.objects.filter(title=title)
-        return new_qweryset
 
-    def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        serializer.save(author=self.request.user, title=title)'''
+    @action(detail=True, methods=['post', 'delete']) #perm IsAut
+    def subscribe(self, request, pk=None):
+        '''.'''
+        # получаем интересующего пользователя из url
+        interes_user = get_object_or_404(User, id=pk)
+        if request.method == 'POST':
+            # проверяем что подписка происходит не на самого себя
+            if request.user == interes_user:
+                return Response(
+                    {'errors': 'Невозможно подписаться на самого себя.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            # проверяем что это будет не повторная подписка на пользователя
+            elif Follow.objects.filter(following=interes_user, user=request.user).exists():
+                return Response(
+                    {'errors': f'Вы уже подписаны на пользователя {interes_user.username}.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            # подписываем пользователя
+            Follow.objects.create(following=interes_user, user=request.user)
+            # выводим информацию о новой подписке
+            serializer = SubscriptionsSerializer(
+                interes_user,
+                context={
+                    'request': request,
+                    'interes_user': interes_user
+                },
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # если метод delete
+        # проверяем существует ли уже такая подписка
+        subscribe = Follow.objects.filter(following=interes_user, user=request.user)
+        if subscribe:
+            subscribe.delete()
+            # удаляем подписку из связующей таблицы, если она там
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        # иначе говорим что подписки не было
+        return Response(
+            {'errors': f'Вы не были подписаны на пользователя {interes_user.username}.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                         viewsets.GenericViewSet):
@@ -133,10 +157,6 @@ class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     возвращает список объектов (для обработки запросов GET).
     """
     pass
-
-
-
-
 
 class FollowViewSet(CreateListViewSet):
     """Предустановленный класс для работы с моделью Follow."""
@@ -152,4 +172,3 @@ class FollowViewSet(CreateListViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-

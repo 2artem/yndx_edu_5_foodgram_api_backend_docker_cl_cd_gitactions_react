@@ -1,16 +1,20 @@
 GET http://127.0.0.1:8000/api/users/
-
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
 
 ###
-###GET http://127.0.0.1:8000/api/download_data/
+GET http://127.0.0.1:8000/api/users/?limit=2
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+
+
+
 
 ###
 POST http://127.0.0.1:8000/api/users/
 Content-Type: application/json
 
 {
-  "email": "leo@mail.ru",
-  "username": "leo",
+  "email": "66848797leoq@mail.ru",
+  "username": "66879487leoq",
   "first_name": "Leo",
   "last_name": "Pug",
   "password": "userQW12!"
@@ -41,14 +45,8 @@ GET http://127.0.0.1:8000/api/users/subscriptions/
 ###
 GET http://127.0.0.1:8000/api/users/3/subscribe/
 
-###
-POST http://127.0.0.1:8000/api/auth/token/login/
-Content-Type: application/json
 
-{
-  "email": "leo@mail.ru",
-  "password": "userQW12!"
-}
+
 ###
 POST http://127.0.0.1:8000/api/auth/token/login/
 Content-Type: application/json
@@ -62,40 +60,66 @@ Content-Type: application/json
 POST http://127.0.0.1:8000/api/auth/token/logout/
 Authorization: Token 309a5a8189d51130ca45d736cb6bc2361c4083a5
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+GET http://127.0.0.1:8000/api/recipes/?limit=2&page=4
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+
 ###
 GET http://127.0.0.1:8000/api/recipes/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
-###
-GET http://127.0.0.1:8000/api/recipes/35/
-Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
-###
-POST http://127.0.0.1:8000/api/recipes/
-Authorization: Token b3aba692a330a8e32b94c5cfd1a4edc3a2ed1126
-Content-Type: application/json
 
-{
-  "ingredients": [
-    2
-  ],
-  "tags": [
-    2
-  ],
-  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
-  "name": "string",
-  "text": "string",
-  "cooking_time": 1,
-  "author": 1
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ###
 GET http://127.0.0.1:8000/api/tags/
 ###
 GET http://127.0.0.1:8000/api/tags/1/
+
+
+
+
+
+
+
+
+
+
 ###
-GET http://127.0.0.1:8000/api/ingredients/?search=огу
+GET http://127.0.0.1:8000/api/ingredients/?name=лим
+
+###
+GET http://127.0.0.1:8000/api/ingredients/?search=виш
 ###
 GET http://127.0.0.1:8000/api/ingredients/1/
 
@@ -111,7 +135,8 @@ GET http://127.0.0.1:8000/api/ingredients/1/
 
 ###
 GET http://127.0.0.1:8000/api/recipes/
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+
 ###
 GET http://127.0.0.1:8000/api/recipes/?author=admin
 Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
@@ -124,10 +149,10 @@ Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
 
 
 
-
+##############
 ###
-GET http://127.0.0.1:8000/api/recipes/?is_favorited=false&author=admin&tags=breakfast
-Authorization: Token a04b6ec3a3cb425a06ff24e29b230cf6637eef76
+GET http://127.0.0.1:8000/api/recipes/?author=admin
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
 
 
 
@@ -145,7 +170,7 @@ Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 ###
 POST http://127.0.0.1:8000/api/recipes/
-Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
 Content-Type: application/json
 
 {
@@ -236,9 +261,6 @@ Authorization: Token 370bec858776287753ac8e3117d3b33d44d6872a
 
 
 
-###
-GET http://127.0.0.1:8000/api/users/subscriptions/
-Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 
 
 
@@ -281,5 +303,34 @@ Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 GET http://127.0.0.1:8000/api/recipes/download_shopping_cart/
 Authorization: Token 2e587d05b90e5f9fab5ecb47726aa4d559593913
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+POST http://127.0.0.1:8000/api/users/1/subscribe/?recipes_limit=2
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+
+
+###
+DELETE http://127.0.0.1:8000/api/users/1/subscribe/
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
+
+
+###
+GET http://127.0.0.1:8000/api/users/subscriptions/
+Authorization: Token 263e6a99bdf9eed9438adda0004a0127333e55ba
 
 

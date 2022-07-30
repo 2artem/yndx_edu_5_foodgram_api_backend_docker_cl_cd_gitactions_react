@@ -75,6 +75,16 @@ DATABASES = {
     }
 }
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+#        'NAME': os.getenv('DB_NAME', default='postgres'),
+#        'USER': os.getenv('POSTGRES_USER', default='postgres'),
+#        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='EnterYourPassword'),
+#        'HOST': os.getenv('DB_HOST', default='db'),
+#        'PORT': os.getenv('DB_PORT', default='5432')
+#    }
+#}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -113,11 +123,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
-
-# Эмуляция почтового сервера. Подключаем движок filebased.EmailBackend
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+STATIC_URL = '/backend_static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'backend_static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Подключаем JWTAuthentication
 REST_FRAMEWORK = {

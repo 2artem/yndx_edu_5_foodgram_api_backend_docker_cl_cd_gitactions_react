@@ -7,22 +7,6 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import AdminAllPermission
 from .permissions import AdminAllOnlyAuthorPermission
-from .models import Category
-from .models import Genre
-from .models import Title
-from .models import Review
-from .models import Comment
-from .serializers import TitlesSerializerMethod
-from .serializers import TitlesSerializer
-from .serializers import CategorySerializer
-from .serializers import GenreSerializer
-from .serializers import ReviewSerializer
-from .serializers import CommentSerializer
-from .pagination import CategoryPagination
-from .pagination import GenrePagination
-from .pagination import TitlesPagination
-from .pagination import ReviewPagination
-from .pagination import CommentPagination
 from .filters import CustomFilter'''
 
 
@@ -40,7 +24,7 @@ from .models import Recipe, Tag, Ingredient, FavoritesRecipesUserList, ShoppingU
 from rest_framework import mixins
 from .pagination import RecipePagination
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import CustomRecipeFilterSet
+from .filters import CustomRecipeFilterSet, IngredientSearchFilter
 from rest_framework import filters
 
 
@@ -204,7 +188,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = RecipePagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = CustomRecipeFilterSet
-    #permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,)
+    #permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,) # хозяин или толькочтение
 
     def get_serializer_class(self):
         # При создании или обновлении рецепта, выбираем другой сериализатор
@@ -212,6 +196,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action == 'create' or self.action == 'partial_update' or self.action == 'update':
             return RecipeCreateUpdateSerializer
         return RecipeSerializer
+
+    #def perform_create(self, serialaizer):
+    #    serialaizer.save(author=self.request.user)
     
     @action(detail=True, methods=['post', 'delete']) #perm IsAut
     def favorite(self, request, pk=None):
@@ -290,7 +277,8 @@ class IngredientViewSet(ListRetrieveModelViewSet):
     """Вьюсет для ."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientSearchFilter
     pagination_class = None
-    search_fields = ('^name',)
+
     #permission_classes = (IsAuthenticatedOrReadOnly, AdminAllPermission,) ADMIN ili READONLY
