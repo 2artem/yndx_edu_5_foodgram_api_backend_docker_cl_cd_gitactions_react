@@ -1,6 +1,5 @@
 from .views import RecipeViewSet, IngredientViewSet
 from .views import TagViewSet
-#from .create_my_fixtures import myload
 from django.urls import path
 from django.urls import include
 from rest_framework import routers
@@ -43,7 +42,5 @@ router.register(r'ingredients',
 
 
 urlpatterns = [
-    #path('download_data/', myload),
-
     path('', include(router.urls)),
 ]

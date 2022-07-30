@@ -29,5 +29,5 @@ class AdminAllOnlyAuthorPermission(permissions.BasePermission):
         return bool(
             request.user.is_superuser
             or obj.author == request.user
-            or request.user.groups.filter(name='recipes_admin').exists()
+            or request.user.groups.filter(name='recipes_admins').exists()
         )

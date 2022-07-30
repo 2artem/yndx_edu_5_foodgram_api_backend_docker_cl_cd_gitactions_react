@@ -38,7 +38,6 @@ class CustomUserAdmin(UserAdmin):
         'first_name',
         'last_name',
         'password',
-        'role',
         'is_staff',
         'is_superuser',
     )

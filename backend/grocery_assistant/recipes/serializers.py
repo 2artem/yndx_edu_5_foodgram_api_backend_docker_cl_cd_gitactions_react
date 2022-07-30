@@ -3,7 +3,6 @@ from drf_extra_fields.fields import Base64ImageField
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-# from reviews.models import Category, Genre, Title, Review, Comment
 from .models import Recipe, Tag, Ingredient
 from .models import  RecipeTagRelationship, RecipeIngredientRelationship, FavoritesRecipesUserList, ShoppingUserList
 from rest_framework import status
@@ -11,8 +10,6 @@ from users.serializers import UserSerializer
 from django.contrib.auth.models import AnonymousUser
 
 User = get_user_model()
-
-
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -27,33 +24,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
-
-
-
-
-        # Достаем из запроса username и id произедения
-        #title_id = self.context['request'].parser_context['kwargs']['title_id']
-        #username = self.context['request'].user
-        # Проверка на наличие в БД отзыва пользователя из запроса
-        #if (Review.objects.filter(title_id=title_id, author=username).exists()
-            #    and self.context['request'].method == 'POST'):
-
-
-'''class MyField(serializers.Field):
-    # При чтении данных ничего не меняем - просто возвращаем как есть
-    def to_representation(self, value):
-        return value
-    # При записи код цвета конвертируется в его название
-    def to_internal_value(self, data):
-        # Доверяй, но проверяй
-        #try:
-            # Если имя цвета существует, то конвертируем код в название
-            #data = webcolors.hex_to_name(data)
-        #except ValueError:
-            # Иначе возвращаем ошибку
-            #raise serializers.ValidationError('Для этого цвета нет имени')
-        # Возвращаем данные в новом формате
-        return data'''
 
 
 class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
@@ -76,8 +46,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     # В моделе 'связи рецепта и его ингредиентов с их количествами' RecipeIngredientRelationship:
     # сериалайзер должен работать с полем рецепт
     ingredients = RecipeIngredientRelationshipSerializer(read_only=True, many=True, source='ingredient_in_recipe')
-    tags = TagSerializer(many=True) #read_only=True, 
-    author = UserSerializer(read_only=True)#, many=False)
+    tags = TagSerializer(many=True)
+    author = UserSerializer(read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -113,12 +83,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             and ShoppingUserList.objects.filter(user=user ,recipe=obj.pk).exists()):
             return True
         return False
-
-
-
-
-
-
 
 
 

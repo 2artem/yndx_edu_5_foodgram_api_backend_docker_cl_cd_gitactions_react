@@ -1,26 +1,14 @@
-'''from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework import filters
-from rest_framework import mixins
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .permissions import AdminAllPermission
-from .permissions import AdminAllOnlyAuthorPermission
-from .filters import CustomFilter'''
-
 from rest_framework import permissions
 from django.http import HttpResponse
 from django.db.models import Sum
 from rest_framework import status
 from rest_framework.response import Response
-from selectors import SelectSelector
 from rest_framework.decorators import action
 from urllib3 import HTTPResponse
 from .serializers import RecipeSerializer, TagSerializer, IngredientSerializer, RecipeCreateUpdateSerializer
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from .models import Recipe, Tag, Ingredient, FavoritesRecipesUserList, ShoppingUserList, RecipeIngredientRelationship
+from .models import Recipe, Tag, Ingredient, FavoritesRecipesUserList, ShoppingUserList
 from rest_framework import mixins
 from .pagination import RecipePagination
 from django_filters.rest_framework import DjangoFilterBackend
@@ -39,53 +27,6 @@ class ListRetrieveModelViewSet(mixins.ListModelMixin,
     '''
     pass
 
-
-'''
-class ReviewViewSet(viewsets.ModelViewSet):
-    """Вьюсет для Review."""
-    serializer_class = ReviewSerializer
-    permission_classes = (
-        IsAuthenticatedOrReadOnly,
-        AdminAllOnlyAuthorPermission,
-    )
-    filter_backends = (filters.SearchFilter,)
-    pagination_class = ReviewPagination
-
-    def get_queryset(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        new_qweryset = Review.objects.filter(title=title)
-        return new_qweryset
-
-    def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        serializer.save(author=self.request.user, title=title)
-
-
-class CommentViewSet(viewsets.ModelViewSet):
-    """Вьюсет для Comment."""
-    serializer_class = CommentSerializer
-    permission_classes = (
-        IsAuthenticatedOrReadOnly,
-        AdminAllOnlyAuthorPermission,
-    )
-    pagination_class = CommentPagination
-
-    def get_queryset(self):
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id)
-        new_qweryset = Comment.objects.filter(review=review)
-        return new_qweryset
-
-    def perform_create(self, serializer):
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id)
-        serializer.save(
-            author=self.request.user,
-            review=review
-        )
-        '''
 
 
 def post_delete_relationship_user_with_object(
@@ -111,7 +52,7 @@ def post_delete_relationship_user_with_object(
         text = {
             'id': recipe.id,
             'name': recipe.name,
-            'image': recipe.image,
+            'image': str(recipe.image),
             'cooking_time': recipe.cooking_time
         }
         return Response(text ,status=status.HTTP_201_CREATED)
@@ -139,7 +80,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = RecipePagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = CustomRecipeFilterSet
-    permission_classes = (AdminAllOnlyAuthorPermission,)
+    permission_classes = (permissions.IsAuthenticated, AdminAllOnlyAuthorPermission,)
 
     def get_permissions(self):
         # Если GET-list или Get-detail запрос
@@ -225,8 +166,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return response
 
 
-
-
 class TagViewSet(ListRetrieveModelViewSet):
     """Вьюсет для ."""
     queryset = Tag.objects.all()
@@ -239,19 +178,3 @@ class IngredientViewSet(ListRetrieveModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientSearchFilter
-
-
-'''class FollowViewSet(CreateListViewSet):
-    """Предустановленный класс для работы с моделью Follow."""
-    serializer_class = FollowSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^following__username',)
-
-    def get_queryset(self):
-        """Изменяем базовый QuerySet, переопределив метод get_queryset."""
-        new_qweryset = Follow.objects.filter(user=self.request.user)
-        return new_qweryset
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)'''
