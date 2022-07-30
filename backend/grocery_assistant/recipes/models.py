@@ -117,14 +117,13 @@ class Recipe(models.Model):
         max_length=200,
         blank=False,
         null=False,
-        verbose_name='название'
+        verbose_name='название',
     )
-    # Картинка, закодированная в Base64 при создании
-    image = models.TextField(
-        max_length=1000,
+    image = models.ImageField(
         blank=False,
         null=False,
         verbose_name='картинка',
+        upload_to='recipe',
     )
     ingredients = models.ManyToManyField(
         Ingredient,

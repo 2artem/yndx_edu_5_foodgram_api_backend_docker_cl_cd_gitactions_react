@@ -193,7 +193,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         # При создании или обновлении рецепта, выбираем другой сериализатор
         # if self.request.method in ('POST', 'PATCH'):
-        if self.action == 'create' or self.action == 'partial_update' or self.action == 'update':
+        if self.action == 'create' or self.action == 'partial_update':
             return RecipeCreateUpdateSerializer
         return RecipeSerializer
 

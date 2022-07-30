@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from drf_extra_fields.fields import Base64ImageField
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
@@ -62,7 +63,6 @@ class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredientRelationship
-        #fields = '__all__'
         fields = (
             'id',
             'name',
@@ -75,15 +75,11 @@ class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     # В моделе 'связи рецепта и его ингредиентов с их количествами' RecipeIngredientRelationship:
     # сериалайзер должен работать с полем рецепт
-    ingredients = RecipeIngredientRelationshipSerializer(read_only=True, many=True, source='recipe_for_ingredient')
+    ingredients = RecipeIngredientRelationshipSerializer(read_only=True, many=True, source='ingredient_in_recipe')
     tags = TagSerializer(many=True) #read_only=True, 
     author = UserSerializer(read_only=True)#, many=False)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-
-    # &&&&&&&&&&&&&&
-    # 'image' =Base64ImageField()
-    
 
     class Meta:
         model = Recipe
@@ -170,6 +166,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         many=True
     )
     author = UserSerializer(read_only=True)
+    image = Base64ImageField()
 
 
     class Meta:

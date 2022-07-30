@@ -1,7 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
-from rest_framework.pagination import BasePagination, PageNumberPagination
 from rest_framework import status
 from rest_framework import filters
 from rest_framework import permissions
@@ -11,30 +9,26 @@ from rest_framework.decorators import action
 from .pagination import UserPagination
 from .serializers import UserSerializer, SetPasswordSerializer, SubscriptionsSerializer
 from .permissions import UnAuthUsersViewUsersListAndMaySignToAPI
-from rest_framework.decorators import api_view
 from .serializers import FollowSerializer
 from .serializers import NewUserSerializer
 from .models import Follow
 from rest_framework import mixins
-#from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
+
 
 User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с приложением users."""
-    #lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = UserPagination
-    #filter_backends = (filters.SearchFilter,)
-    #search_fields = ('^username',)
-    permission_classes = (
+    #permission_classes = (
         #UnAuthUsersViewUsersListAndMaySignToAPI,
-        permissions.IsAuthenticated,
+    #    permissions.IsAuthenticated,
     #    AdminAllPermissionOrMeURLGetUPDMyself,
-    )
+    #)
 
     
     def get_serializer_class(self):
@@ -78,33 +72,30 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 ####@action(detail=False, permission_classes=[permissions.IsAuthenticated])
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'])#, pagination_class=SubscriptionsPagination)
     def subscriptions(self, request):
         '''
         #Метод обрабатывающий эндпоинт 'subscriptions'.
         #Возвращает пользователей, на которых подписан текущий пользователь. В выдачу добавляются рецепты.
         '''
-
-
         # авторизованный юзер
         user = request.user
-        # объекты пользователей в связующей таблице Follow, где
-        # все поля following(на кого подписан) связаны с пользователем из токена
+        # объекты пользователей на которых подписан пользователь токена,
+        # в связующей таблице Follow, где выбраны все поля following(на кого подписан)
         queryset = User.objects.filter(following__user=user)
- 
-
-
+        # Передаем методу queryset, и возвращаем итерируемый объект,
+        # содержащий только данные запрошенной страницы.
         pages = self.paginate_queryset(queryset)
         serializer = SubscriptionsSerializer(
-            data=pages, many=True, context={"request": request}
+            data=pages,
+            many=True,
+            context={
+                'request': request
+            },
         )
         serializer.is_valid()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-
+        # передаем сериализованные данные страницы,и возвращаем экземпляр Response
+        return self.get_paginated_response(data=serializer.data)
 
     @action(detail=True, methods=['post', 'delete']) #perm IsAut
     def subscribe(self, request, pk=None):
@@ -130,8 +121,7 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = SubscriptionsSerializer(
                 interes_user,
                 context={
-                    'request': request,
-                    'interes_user': interes_user
+                    'request': request
                 },
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -124,9 +124,8 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         '''Общее количество рецептов пользователя.'''
-
         return Recipe.objects.filter(
-            author=self.context['interes_user']
+            author=obj
             ).count()
 
     def get_recipes(self, obj):
@@ -135,7 +134,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         recipes_limit = self.context['request'].GET.get('recipes_limit')
         # водим рецепты интересующего пользователя,
         # отталкиваясь от параметра recipes_limit, если он есть
-        interes_user= self.context['interes_user']
+        interes_user = obj
         if recipes_limit:
             return SubRecipeSerializer(
                 Recipe.objects.filter(author=interes_user)[:int(recipes_limit)],
