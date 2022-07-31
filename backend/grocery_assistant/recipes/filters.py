@@ -4,7 +4,7 @@ from .models import Ingredient, Recipe, Tag
 
 
 class CustomRecipeFilterSet(filters.FilterSet):
-    """Кастомные фильтры."""
+    '''Кастомные фильтры.'''
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',

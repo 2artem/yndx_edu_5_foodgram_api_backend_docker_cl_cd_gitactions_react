@@ -125,11 +125,11 @@ def create_relationship_ingredient_recipe(ingredients, recipe):
         current_ingredient = Ingredient.objects.filter(id=cur_id).first()
         if not current_ingredient:
             message = (
-                f'Недопустимый первичный ключ "{cur_id}" -'
+                f'Недопустимый первичный ключ \"{cur_id}\" -'
                 + 'ингредиент не существует.'
             )
             raise serializers.ValidationError(
-                {"ingredients": [f"{message}"]}
+                {'ingredients': [f'{message}']}
             )
         # если существует, продолжаем добавлять объекты рецептов
         new_ingredient = RecipeIngredientRelationship(
@@ -198,8 +198,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             if amount <= 0:
                 list_null_amount.append(
                     (
-                        f'Количество \"amount\" для ингридиента c "id" = {id}'
-                        + f' должно быть больше 0, у Вас {amount}.'
+                        'Количество \"amount\" для ингридиента c \"id\" = '
+                        + f'{id} должно быть больше 0, у Вас {amount}.'
                     )
                 )
             uniq_ingredients.add(id)
