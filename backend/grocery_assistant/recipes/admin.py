@@ -18,11 +18,18 @@ class RecipeAdmin(admin.ModelAdmin):
         'pk',
         'author',
         'name',
+        'calc_in_users_favorites',
     )
     # фильтрация
     list_filter = ('author', 'name', 'tags',)
     inlines = [RecipeInline, ]
-    # фильтрация по тегу
+
+    def calc_in_users_favorites(self, obj):
+        '''
+        Агрегация количества добавлений конкретного рецепта
+        в избранное пользователями в данный момент.
+        '''
+        return FavoritesRecipesUserList.objects.filter(recipe=obj).count()
 
     class Meta:
         model = Recipe

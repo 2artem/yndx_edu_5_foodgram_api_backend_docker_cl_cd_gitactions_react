@@ -17,36 +17,29 @@ class CustomRecipeFilterSet(filters.FilterSet):
         method='filter_is_in_shopping_cart'
     )
 
-    def filter_is_favorited(self, queryset, name, value):
-        '''Показывать только рецепты, находящиеся в списке избранного.'''
-        if not self.request.user.is_anonymous:
+    def _bool_filter(self, key, value, queryset, user):
+        '''Фильтрация для логических ключей.'''
+        map_dict = {f'{key}__user': user}
+        if not user.is_anonymous:
             if value:
                 # если ключ True
-                return queryset.filter(favorit_recipe__user=self.request.user)
+                return queryset.filter(**map_dict)
             elif value is False:
                 # Если ключ False
-                return queryset.exclude(favorit_recipe__user=self.request.user)
-            # если ключа нет
+                return queryset.exclude(**map_dict)
         # неавторизованый пользователь получит все записи
         # авторизованный получит все записи при нелогическом значении ключа
         return queryset
 
+    def filter_is_favorited(self, queryset, name, value):
+        '''Показывать только рецепты, находящиеся в списке избранного.'''
+        key = 'favorit_recipe'
+        return self._bool_filter(key, value, queryset, user=self.request.user)
+
     def filter_is_in_shopping_cart(self, queryset, name, value):
         '''Показывать только рецепты, находящиеся в списке покупок.'''
-        if not self.request.user.is_anonymous:
-            if value:
-                # если ключ True
-                return queryset.filter(
-                    recipe_in_shoplist__user=self.request.user
-                )
-            elif value is False:
-                # Если ключ False
-                return queryset.exclude(
-                    recipe_in_shoplist__user=self.request.user
-                )
-        # неавторизованый пользователь получит все записи
-        # авторизованный получит все записи при нелогическом значении ключа
-        return queryset
+        key = 'recipe_in_shoplist'
+        return self._bool_filter(key, value, queryset, user=self.request.user)
 
     class Meta:
         model = Recipe

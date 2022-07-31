@@ -2,32 +2,14 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_slug
+from django.core.validators import MinValueValidator, validate_slug
 from django.db import models
 
 User = get_user_model()
 
 
-def cooking_time_validator_at_least_1_minute(value):
-    '''Проверка что .'''
-    message = (
-        'Время приготовления не может быть меньше 1 минуты.'
-    )
-    if value < 1:
-        raise ValidationError(message)
-
-
-def amount_above_zero_validator(value):
-    '''Проверка что .'''
-    message = (
-        'Количество должно быть больше 0.'
-    )
-    if value <= 0:
-        raise ValidationError(message)
-
-
 def hex_field_validator(value):
-    '''Проверка что .'''
+    '''Проверка что содержимое поля в формате HEX.'''
     message = (
         'Введите цвет в формате HEX.'
     )
@@ -88,11 +70,14 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
     '''Модель рецепта.'''
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveIntegerField(
         blank=False,
         null=False,
         verbose_name='время приготовления в минутах',
-        validators=[cooking_time_validator_at_least_1_minute],
+        validators=[MinValueValidator(
+            limit_value=1,
+            message='Минимальное время приготовления - 1 минута.')
+        ],
     )
     text = models.TextField(
         max_length=1000,
@@ -136,17 +121,11 @@ class Recipe(models.Model):
         verbose_name='тег',
         through='RecipeTagRelationship'
     )
-    number_add_to_favorites = models.IntegerField(
-        blank=True,
-        null=True,
-        verbose_name='общее число добавлений рецепта в избранное',
-        default=0
-    )
 
     class Meta:
         ordering = ['-pub_date']
         verbose_name = 'рецепт'
-        verbose_name_plural = "рецепты"
+        verbose_name_plural = 'рецепты'
 
     def __str__(self):
         return '{}.. - ({}..)'.format(
@@ -199,11 +178,14 @@ class RecipeIngredientRelationship(models.Model):
         related_name='ingredient_in_recipe',
         verbose_name='рецепт',
     )
-    amount = models.IntegerField(
+    amount = models.PositiveIntegerField(
         blank=False,
         null=False,
         verbose_name='количество ингредиента в рецепте',
-        validators=[amount_above_zero_validator],
+        validators=[MinValueValidator(
+            limit_value=1,
+            message='Количество должно быть больше 0.')
+        ],
     )
 
     class Meta:
@@ -276,7 +258,7 @@ class ShoppingUserList(models.Model):
         )
         constraints = [
             models.UniqueConstraint(
-                name="unique_relationships_user_shoplist",
+                name='unique_relationships_user_shoplist',
                 fields=['user', 'recipe'],
             ),
         ]

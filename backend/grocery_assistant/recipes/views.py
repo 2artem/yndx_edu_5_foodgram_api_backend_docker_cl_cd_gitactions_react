@@ -48,10 +48,6 @@ def post_delete_relationship_user_with_object(
             recipe=recipe,
             user=request.user
         )
-        # фиксируем количество добавлений в избранное
-        if model == FavoritesRecipesUserList:
-            recipe.number_add_to_favorites += 1
-            recipe.save()
         # возвращаем ответ
         text = {
             'id': recipe.id,
@@ -92,7 +88,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         '''Ветвление пермишенов.'''
         # Если GET-list или Get-detail запрос
-        if self.action == 'list' or self.action == 'retrieve':
+        if self.action in ['list', 'retrieve']:
             return (permissions.AllowAny(),)
         # Для остальных ситуаций оставим текущий перечень
         # пермишенов без изменений
@@ -100,9 +96,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         '''При создании или обновлении рецепта, выбираем другой сериализатор'''
-        if (self.action == 'create'
-                or self.action == 'partial_update'
-                or self.action == 'update'):
+        if self.action in ['create', 'partial_update', 'update']:
             return RecipeCreateUpdateSerializer
         return RecipeSerializer
 

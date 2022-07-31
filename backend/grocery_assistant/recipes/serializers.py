@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers, status
+from rest_framework import serializers
 
 from users.serializers import UserSerializer
 
@@ -118,23 +118,28 @@ def create_relationship_tag_recipe(tags, recipe):
 
 def create_relationship_ingredient_recipe(ingredients, recipe):
     '''Наполение связующей таблицы ингредиента и рецепта.'''
+    ingredient_list = []
     for ingredient in ingredients:
+        # проверка на существование ингредиента
         cur_id = ingredient['id']
         current_ingredient = Ingredient.objects.filter(id=cur_id).first()
         if not current_ingredient:
             message = (
                 f'Недопустимый первичный ключ "{cur_id}" -'
-                + 'объект не существует.'
+                + 'ингредиент не существует.'
             )
             raise serializers.ValidationError(
                 {"ingredients": [f"{message}"]}
             )
-        amount = ingredient['amount']
-        RecipeIngredientRelationship.objects.create(
-            ingredient=current_ingredient,
+        # если существует, продолжаем добавлять объекты рецептов
+        new_ingredient = RecipeIngredientRelationship(
             recipe=recipe,
-            amount=amount
+            ingredient_id=cur_id,
+            amount=ingredient['amount'],
         )
+        ingredient_list.append(new_ingredient)
+    # создание связей одним запросом к БД
+    RecipeIngredientRelationship.objects.bulk_create(ingredient_list)
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
@@ -208,66 +213,55 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         '''Переопределение создания рецепта.'''
-        try:
-            with transaction.atomic():
-                # заберем ингредиенты и теги из валидированных входных данных
-                ingredients = validated_data.pop('recipe_for_ingredient')
-                tags = validated_data.pop('tags')
-                author = self.context.get('request').user
-                recipe = Recipe.objects.create(
-                    author=author,
-                    **validated_data
-                )
-                # создадим отношения между тегами и рецептами
-                # в Связующей таблице
-                create_relationship_tag_recipe(tags, recipe)
-                # создадим отношения между ингридиентами и рецептами
-                # в Связующей таблице, если такие есть в БД
-                create_relationship_ingredient_recipe(ingredients, recipe)
-        except IntegrityError:
-            raise serializers.ValidationError(
-                validated_data, status.HTTP_400_BAD_REQUEST
+        with transaction.atomic():
+            # заберем ингредиенты и теги из валидированных входных данных
+            ingredients = validated_data.pop('recipe_for_ingredient')
+            tags = validated_data.pop('tags')
+            author = self.context.get('request').user
+            recipe = Recipe.objects.create(
+                author=author,
+                **validated_data
             )
+            # создадим отношения между тегами и рецептами
+            # в Связующей таблице
+            create_relationship_tag_recipe(tags, recipe)
+            # создадим отношения между ингридиентами и рецептами
+            # в Связующей таблице, если такие есть в БД
+            create_relationship_ingredient_recipe(ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
         '''Переопределение обновления рецепта.'''
-        try:
-            with transaction.atomic():
-                # достаем редактируемый рецепт
-                current_obj_recipe = get_object_or_404(Recipe, id=instance.pk)
-                # если были переданы ингридиенты
-                if validated_data.get('recipe_for_ingredient'):
-                    # чистим связи с ингридиентами
-                    model = RecipeIngredientRelationship
-                    records_ingredient_recipe = model.objects.filter(
-                        recipe=current_obj_recipe
-                    )
-                    for record in records_ingredient_recipe:
-                        record.delete()
-                    # Входные данные
-                    ingredients = validated_data.pop('recipe_for_ingredient')
-                    # создадим отношения между ингридиентами и рецептами
-                    # в Связующей таблице, если такие есть в БД
-                    create_relationship_ingredient_recipe(
-                        ingredients,
-                        current_obj_recipe
-                    )
-                if validated_data.get('tags'):
-                    # чистим связи рецепта с тегами
-                    records_tag_recipe = RecipeTagRelationship.objects.filter(
-                        recipe=current_obj_recipe
-                    )
-                    for record in records_tag_recipe:
-                        record.delete()
-                    # Входные данные
-                    tags = validated_data.pop('tags')
-                    # создадим отношения между тегами и рецептами
-                    # в Связующей таблице
-                    create_relationship_tag_recipe(tags, current_obj_recipe)
-        except IntegrityError:
-            raise serializers.ValidationError(
-                validated_data,
-                status.HTTP_400_BAD_REQUEST
-            )
+        with transaction.atomic():
+            # достаем редактируемый рецепт
+            current_obj_recipe = get_object_or_404(Recipe, id=instance.pk)
+            # если были переданы ингридиенты
+            if validated_data.get('recipe_for_ingredient'):
+                # чистим связи с ингридиентами
+                model = RecipeIngredientRelationship
+                records_ingredient_recipe = model.objects.filter(
+                    recipe=current_obj_recipe
+                )
+                for record in records_ingredient_recipe:
+                    record.delete()
+                # Входные данные
+                ingredients = validated_data.pop('recipe_for_ingredient')
+                # создадим отношения между ингридиентами и рецептами
+                # в Связующей таблице, если такие есть в БД
+                create_relationship_ingredient_recipe(
+                    ingredients,
+                    current_obj_recipe
+                )
+            if validated_data.get('tags'):
+                # чистим связи рецепта с тегами
+                records_tag_recipe = RecipeTagRelationship.objects.filter(
+                    recipe=current_obj_recipe
+                )
+                for record in records_tag_recipe:
+                    record.delete()
+                # Входные данные
+                tags = validated_data.pop('tags')
+                # создадим отношения между тегами и рецептами
+                # в Связующей таблице
+                create_relationship_tag_recipe(tags, current_obj_recipe)
         return super().update(instance, validated_data)
