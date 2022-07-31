@@ -1,6 +1,6 @@
-#from django_filters import FilterSet, ModelMultipleChoiceFilter, CharFilter, BooleanFilter
 from django_filters import rest_framework as filters
-from .models import Ingredient, Tag, Recipe
+
+from .models import Ingredient, Recipe, Tag
 
 
 class CustomRecipeFilterSet(filters.FilterSet):
@@ -13,7 +13,9 @@ class CustomRecipeFilterSet(filters.FilterSet):
     )
     author = filters.CharFilter(lookup_expr='username')
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_cart = filters.BooleanFilter(method='filter_is_in_shopping_cart')
+    is_in_shopping_cart = filters.BooleanFilter(
+        method='filter_is_in_shopping_cart'
+    )
 
     def filter_is_favorited(self, queryset, name, value):
         '''Показывать только рецепты, находящиеся в списке избранного.'''
@@ -21,7 +23,7 @@ class CustomRecipeFilterSet(filters.FilterSet):
             if value:
                 # если ключ True
                 return queryset.filter(favorit_recipe__user=self.request.user)
-            elif value == False:
+            elif value is False:
                 # Если ключ False
                 return queryset.exclude(favorit_recipe__user=self.request.user)
             # если ключа нет
@@ -29,26 +31,30 @@ class CustomRecipeFilterSet(filters.FilterSet):
         # авторизованный получит все записи при нелогическом значении ключа
         return queryset
 
-
     def filter_is_in_shopping_cart(self, queryset, name, value):
         '''Показывать только рецепты, находящиеся в списке покупок.'''
         if not self.request.user.is_anonymous:
             if value:
                 # если ключ True
-                return queryset.filter(recipe_in_shoplist__user=self.request.user)
-            elif value == False:
+                return queryset.filter(
+                    recipe_in_shoplist__user=self.request.user
+                )
+            elif value is False:
                 # Если ключ False
-                return queryset.exclude(recipe_in_shoplist__user=self.request.user)
+                return queryset.exclude(
+                    recipe_in_shoplist__user=self.request.user
+                )
         # неавторизованый пользователь получит все записи
         # авторизованный получит все записи при нелогическом значении ключа
         return queryset
-
 
     class Meta:
         model = Recipe
         fields = ['tags', 'author', 'is_favorited', 'is_in_shopping_cart']
 
+
 class IngredientSearchFilter(filters.FilterSet):
+    '''Поиск по наименованию ингредиента.'''
     name = filters.CharFilter(lookup_expr='istartswith')
 
     class Meta:

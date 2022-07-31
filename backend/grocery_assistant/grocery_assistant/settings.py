@@ -77,7 +77,7 @@ AUTH_USER_MODEL = 'users.User'
 
 DATABASES = {
     'default': {
-       'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
         'NAME': os.getenv('DB_NAME', default='postgres'),
         'USER': os.getenv('POSTGRES_USER', default='postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='EnterYourPassword'),
@@ -133,19 +133,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    #'DEFAULT_AUTHENTICATION_CLASSES': [
-    #    'rest_framework_simplejwt.authentication.JWTAuthentication',
-    #],
-    #'DEFAULT_PERMISSION_CLASSES': [
-    #    'rest_framework.permissions.IsAuthenticated', 
-    #],
 }
-
-'''SIMPLE_JWT = {
-    # Срок жизни токена
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
-    'AUTH_HEADER_TYPES': ('Token',),
-}'''
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

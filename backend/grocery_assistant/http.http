@@ -388,19 +388,19 @@ Authorization: Token fdca21c4ed9500602e66b3f3b5736299bbd80276
 ###
 
 ###
-POST http://127.0.0.1:8000/api/recipes/7/shopping_cart/
-Authorization: Token 2b94139f509ad9b78c1936f5444945b44cdd78d5
+POST http://127.0.0.1:8000/api/recipes/2/shopping_cart/
+Authorization: Token 0a53b4bc1bff3eed34fb0df5a0217b231dd2f2a3
 
 
 ###
-DELETE http://127.0.0.1:8000/api/recipes/7/shopping_cart/
-Authorization: Token 2b94139f509ad9b78c1936f5444945b44cdd78d5
+DELETE http://127.0.0.1:8000/api/recipes/2/shopping_cart/
+Authorization: Token 0a53b4bc1bff3eed34fb0df5a0217b231dd2f2a3
 
 
 
 ###
 GET http://127.0.0.1:8000/api/recipes/download_shopping_cart/
-Authorization: Token 2b94139f509ad9b78c1936f5444945b44cdd78d5
+Authorization: Token 0a53b4bc1bff3eed34fb0df5a0217b231dd2f2a3
 
 
 
@@ -412,13 +412,13 @@ Authorization: Token 2b94139f509ad9b78c1936f5444945b44cdd78d5
 
 # FAV
 ###
-POST http://127.0.0.1:8000/api/recipes/7/favorite/
-Authorization: Token 2b94139f509ad9b78c1936f5444945b44cdd78d5
+POST http://127.0.0.1:8000/api/recipes/2/favorite/
+Authorization: Token 0a53b4bc1bff3eed34fb0df5a0217b231dd2f2a3
 
 
 ###
-DELETE http://127.0.0.1:8000/api/recipes/7/favorite/
-Authorization: Token 2b94139f509ad9b78c1936f5444945b44cdd78d5
+DELETE http://127.0.0.1:8000/api/recipes/2/favorite/
+Authorization: Token 0a53b4bc1bff3eed34fb0df5a0217b231dd2f2a3
 
 
 

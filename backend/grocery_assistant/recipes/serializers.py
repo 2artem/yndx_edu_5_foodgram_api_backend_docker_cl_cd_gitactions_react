@@ -1,18 +1,21 @@
 from django.contrib.auth import get_user_model
-from drf_extra_fields.fields import Base64ImageField
-from django.db import IntegrityError, transaction
-from rest_framework import serializers
-from django.shortcuts import get_object_or_404
-from .models import Recipe, Tag, Ingredient
-from .models import  RecipeTagRelationship, RecipeIngredientRelationship, FavoritesRecipesUserList, ShoppingUserList
-from rest_framework import status
-from users.serializers import UserSerializer
 from django.contrib.auth.models import AnonymousUser
+from django.db import IntegrityError, transaction
+from django.shortcuts import get_object_or_404
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers, status
+
+from users.serializers import UserSerializer
+
+from .models import (FavoritesRecipesUserList, Ingredient, Recipe,
+                     RecipeIngredientRelationship, RecipeTagRelationship,
+                     ShoppingUserList, Tag)
 
 User = get_user_model()
 
 
 class TagSerializer(serializers.ModelSerializer):
+    '''Сериалайзер для тега.'''
 
     class Meta:
         model = Tag
@@ -20,6 +23,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    '''Сериалайзер для ингредиента.'''
 
     class Meta:
         model = Ingredient
@@ -27,9 +31,12 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
+    '''Сериалайзер для связующей таблицы Рецепта с ингредиентом.'''
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.StringRelatedField(source='ingredient.name')
-    measurement_unit = serializers.StringRelatedField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.StringRelatedField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = RecipeIngredientRelationship
@@ -39,13 +46,15 @@ class RecipeIngredientRelationshipSerializer(serializers.ModelSerializer):
             'measurement_unit',
             'amount',
         )
-    
-    
+
 
 class RecipeSerializer(serializers.ModelSerializer):
-    # В моделе 'связи рецепта и его ингредиентов с их количествами' RecipeIngredientRelationship:
-    # сериалайзер должен работать с полем рецепт
-    ingredients = RecipeIngredientRelationshipSerializer(read_only=True, many=True, source='ingredient_in_recipe')
+    '''Сериалайзер для рецепта.'''
+    ingredients = RecipeIngredientRelationshipSerializer(
+        read_only=True,
+        many=True,
+        source='ingredient_in_recipe'
+    )
     tags = TagSerializer(many=True)
     author = UserSerializer(read_only=True)
     is_favorited = serializers.SerializerMethodField()
@@ -55,7 +64,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id',
-            'tags', 
+            'tags',
             'author',
             'ingredients',
             'is_favorited',
@@ -67,26 +76,29 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        '''В избранном .'''
+        '''Проверка, находится ли в избранном.'''
         user = self.context['request'].user
         # Если пользователь не аноним и подписка существует
         if (user != AnonymousUser()
-            and FavoritesRecipesUserList.objects.filter(user=user ,recipe=obj.pk).exists()):
+                and FavoritesRecipesUserList.objects.filter(
+                    user=user, recipe=obj.pk).exists()):
             return True
         return False
 
     def get_is_in_shopping_cart(self, obj):
-        '''В шоп листе .'''
+        '''Проверка, находится ли в списке покупок.'''
         user = self.context['request'].user
         # Если пользователь не аноним и подписка существует
         if (user != AnonymousUser()
-            and ShoppingUserList.objects.filter(user=user ,recipe=obj.pk).exists()):
+                and ShoppingUserList.objects.filter(
+                    user=user, recipe=obj.pk).exists()):
             return True
         return False
 
 
-
-class RecipeIngredientAmountCreateUpdateSerializer(serializers.ModelSerializer):
+class RecipeIngredientAmountCreateUpdateSerializer(
+        serializers.ModelSerializer):
+    '''Сериалайзер для вывода количества ингредиента.'''
     id = serializers.IntegerField()
     amount = serializers.IntegerField()
 
@@ -97,19 +109,25 @@ class RecipeIngredientAmountCreateUpdateSerializer(serializers.ModelSerializer):
             'amount',
         )
 
+
 def create_relationship_tag_recipe(tags, recipe):
     '''Наполение связующей таблицы тега и рецепта.'''
     for tag in tags:
         RecipeTagRelationship.objects.create(tag=tag, recipe=recipe)
 
+
 def create_relationship_ingredient_recipe(ingredients, recipe):
+    '''Наполение связующей таблицы ингредиента и рецепта.'''
     for ingredient in ingredients:
         cur_id = ingredient['id']
         current_ingredient = Ingredient.objects.filter(id=cur_id).first()
         if not current_ingredient:
-            message = f'Недопустимый первичный ключ "{cur_id}" - объект не существует.'
+            message = (
+                f'Недопустимый первичный ключ "{cur_id}" -'
+                + 'объект не существует.'
+            )
             raise serializers.ValidationError(
-                {"ingredients": [ f"{message}"]}
+                {"ingredients": [f"{message}"]}
             )
         amount = ingredient['amount']
         RecipeIngredientRelationship.objects.create(
@@ -132,7 +150,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     image = Base64ImageField()
 
-
     class Meta:
         model = Recipe
         fields = (
@@ -150,7 +167,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return RecipeSerializer(instance, context=self.context).data
 
     def validate_tags(self, value):
-        #Проверяем уникальность введенных ингридиентов и тегов в рецепте.
+        '''Валидация тегов.'''
         # Проверим теги в запросе на уникальность
         tags = value
         all_tags_request = len(tags)
@@ -159,10 +176,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             uniq_tags.add(tag.pk)
         if len(uniq_tags) != all_tags_request:
             raise serializers.ValidationError('Теги должны быть уникальными.')
-        return value 
-
+        return value
 
     def validate_ingredients(self, value):
+        '''Валидация ингредиентов.'''
         # Проверим ингридиенты в запросе на уникальность
         # и то, что количество не меньше 0
         ingredients = value
@@ -177,16 +194,17 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 list_null_amount.append(
                     (
                         f'Количество \"amount\" для ингридиента c "id" = {id}'
-                        +f' должно быть больше 0, у Вас {amount}.'
+                        + f' должно быть больше 0, у Вас {amount}.'
                     )
                 )
             uniq_ingredients.add(id)
         if len(uniq_ingredients) != all_ingredients_request:
-            raise serializers.ValidationError('Ингридиенты должны быть уникальными.')
+            raise serializers.ValidationError(
+                'Ингридиенты должны быть уникальными.'
+            )
         if list_null_amount:
             raise serializers.ValidationError(list_null_amount)
-        return value 
-
+        return value
 
     def create(self, validated_data):
         '''Переопределение создания рецепта.'''
@@ -200,18 +218,20 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     author=author,
                     **validated_data
                 )
-                # создадим отношения между тегами и рецептами в Связующей таблице
+                # создадим отношения между тегами и рецептами
+                # в Связующей таблице
                 create_relationship_tag_recipe(tags, recipe)
-                # создадим отношения между ингридиентами и рецептами в Связующей таблице,
-                # если такие есть в БД
+                # создадим отношения между ингридиентами и рецептами
+                # в Связующей таблице, если такие есть в БД
                 create_relationship_ingredient_recipe(ingredients, recipe)
         except IntegrityError:
-            raise serializers.ValidationError(validated_data, status.HTTP_400_BAD_REQUEST)
+            raise serializers.ValidationError(
+                validated_data, status.HTTP_400_BAD_REQUEST
+            )
         return recipe
 
-
     def update(self, instance, validated_data):
-        '''Переопределение обновления рецепта.''' 
+        '''Переопределение обновления рецепта.'''
         try:
             with transaction.atomic():
                 # достаем редактируемый рецепт
@@ -219,23 +239,35 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 # если были переданы ингридиенты
                 if validated_data.get('recipe_for_ingredient'):
                     # чистим связи с ингридиентами
-                    records_ingredient_recipe = RecipeIngredientRelationship.objects.filter(recipe=current_obj_recipe)
+                    model = RecipeIngredientRelationship
+                    records_ingredient_recipe = model.objects.filter(
+                        recipe=current_obj_recipe
+                    )
                     for record in records_ingredient_recipe:
                         record.delete()
                     # Входные данные
                     ingredients = validated_data.pop('recipe_for_ingredient')
-                    # создадим отношения между ингридиентами и рецептами в Связующей таблице,
-                    # если такие есть в БД
-                    create_relationship_ingredient_recipe(ingredients, current_obj_recipe)
+                    # создадим отношения между ингридиентами и рецептами
+                    # в Связующей таблице, если такие есть в БД
+                    create_relationship_ingredient_recipe(
+                        ingredients,
+                        current_obj_recipe
+                    )
                 if validated_data.get('tags'):
                     # чистим связи рецепта с тегами
-                    records_tag_recipe = RecipeTagRelationship.objects.filter(recipe=current_obj_recipe)
+                    records_tag_recipe = RecipeTagRelationship.objects.filter(
+                        recipe=current_obj_recipe
+                    )
                     for record in records_tag_recipe:
                         record.delete()
                     # Входные данные
                     tags = validated_data.pop('tags')
-                    # создадим отношения между тегами и рецептами в Связующей таблице
+                    # создадим отношения между тегами и рецептами
+                    # в Связующей таблице
                     create_relationship_tag_recipe(tags, current_obj_recipe)
         except IntegrityError:
-            raise serializers.ValidationError(validated_data, status.HTTP_400_BAD_REQUEST)
+            raise serializers.ValidationError(
+                validated_data,
+                status.HTTP_400_BAD_REQUEST
+            )
         return super().update(instance, validated_data)

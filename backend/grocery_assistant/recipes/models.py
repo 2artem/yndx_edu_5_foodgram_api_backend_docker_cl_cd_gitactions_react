@@ -1,13 +1,12 @@
-from django.core.validators import validate_slug
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.contrib.auth import get_user_model
-from django.db import models
-from .validators import check_value_year_valid
-from django.core.exceptions import ValidationError
 import re
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_slug
+from django.db import models
 
 User = get_user_model()
+
 
 def cooking_time_validator_at_least_1_minute(value):
     '''Проверка что .'''
@@ -17,6 +16,7 @@ def cooking_time_validator_at_least_1_minute(value):
     if value < 1:
         raise ValidationError(message)
 
+
 def amount_above_zero_validator(value):
     '''Проверка что .'''
     message = (
@@ -24,6 +24,7 @@ def amount_above_zero_validator(value):
     )
     if value <= 0:
         raise ValidationError(message)
+
 
 def hex_field_validator(value):
     '''Проверка что .'''
@@ -34,14 +35,13 @@ def hex_field_validator(value):
         raise ValidationError(message)
 
 
-
-
 class Ingredient(models.Model):
+    '''Модель ингредиента.'''
     name = models.CharField(
         max_length=200,
         unique=False,
         db_index=True,
-        verbose_name='название',
+        verbose_name='название ингредиента',
     )
     measurement_unit = models.CharField(
         max_length=200,
@@ -62,7 +62,7 @@ class Tag(models.Model):
         max_length=200,
         unique=True,
         db_index=True,
-        verbose_name='название',
+        verbose_name='название тега',
     )
     slug = models.SlugField(
         max_length=200,
@@ -86,7 +86,6 @@ class Tag(models.Model):
         return self.slug
 
 
-
 class Recipe(models.Model):
     '''Модель рецепта.'''
     cooking_time = models.IntegerField(
@@ -106,7 +105,6 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=False,
-        #related_name='recipes',
         verbose_name='автор',
     )
     pub_date = models.DateTimeField(
@@ -135,61 +133,48 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         db_index=True,
-        #related_name='tag',
         verbose_name='тег',
         through='RecipeTagRelationship'
     )
-    # КОЛИЧЕСТВО -ОБЩЕЕ ЧИСТО ДОБАВЛЕНИЙ РЕЦЕПТРА В ИЗБРАННОЕ (думаю отдельными людьми) Запоминать кто уже добавлял..
     number_add_to_favorites = models.IntegerField(
         blank=True,
         null=True,
         verbose_name='общее число добавлений рецепта в избранное',
-        validators=[cooking_time_validator_at_least_1_minute],
+        default=0
     )
 
     class Meta:
         ordering = ['-pub_date']
         verbose_name = 'рецепт'
         verbose_name_plural = "рецепты"
-        #constraints = [
-        #    models.UniqueConstraint(
-        #        name="unique_relationships1",
-        #        fields=['author', 'name'],
-        #    ),
-        #]
 
     def __str__(self):
         return '{}.. - ({}..)'.format(
             self.name[:15],
             self.text[:15]
         )
-    
-
-
-
-
-
 
 
 class RecipeTagRelationship(models.Model):
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
-        #related_name='tag',
+        related_name='recipe_tags',
         verbose_name='Тег',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        #related_name='recipe',
+        related_name='recipe_tags',
         verbose_name='Рецепт',
     )
 
     class Meta:
-        verbose_name = 'Связь тега и рецепта'
+        verbose_name = 'Связь тега c рецептом'
+        verbose_name_plural = 'Связи тегов c рецептами'
         constraints = [
             models.UniqueConstraint(
-                name="unique_relationships2",
+                name='unique_relationships_tag_recipe',
                 fields=['tag', 'recipe'],
             ),
         ]
@@ -217,15 +202,16 @@ class RecipeIngredientRelationship(models.Model):
     amount = models.IntegerField(
         blank=False,
         null=False,
-        verbose_name='количество',
+        verbose_name='количество ингредиента в рецепте',
         validators=[amount_above_zero_validator],
     )
 
     class Meta:
-        verbose_name = 'Связь ингредиента и рецепта'
+        verbose_name = 'Связь ингредиента c рецептом'
+        verbose_name_plural = 'Связи ингредиентов c рецептами'
         constraints = [
             models.UniqueConstraint(
-                name="unique_relationships3",
+                name='unique_relationships_ingredient_recipe',
                 fields=['ingredient', 'recipe'],
             ),
         ]
@@ -237,15 +223,11 @@ class RecipeIngredientRelationship(models.Model):
         )
 
 
-
-
-
-
 class FavoritesRecipesUserList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='user1',
+        related_name='favorit_recipe',
         verbose_name='Пользователь, имеющий избранные рецепты',
     )
     recipe = models.ForeignKey(
@@ -256,10 +238,11 @@ class FavoritesRecipesUserList(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Связи пользователя с его избранными рецептами'
+        verbose_name = 'Связь избранного рецепта с пользователем'
+        verbose_name_plural = 'Связи избранных рецептов с пользователями'
         constraints = [
             models.UniqueConstraint(
-                name="unique_relationships4",
+                name='unique_relationships_user_fav_recipe',
                 fields=['user', 'recipe'],
             ),
         ]
@@ -275,7 +258,7 @@ class ShoppingUserList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        #related_name='user',
+        related_name='recipe_in_shoplist',
         verbose_name='Пользователь, имеющий рецепт в Списке покупок',
     )
     recipe = models.ForeignKey(
@@ -286,10 +269,14 @@ class ShoppingUserList(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Рецепты пользователя добавленные в Список покупок'
+        verbose_name = 'Связь списка покупок (рецепта с пользователем)'
+        verbose_name_plural = (
+            'Связи списка покупок '
+            + '(рецептов с пользователями)'
+        )
         constraints = [
             models.UniqueConstraint(
-                name="unique_relationships5",
+                name="unique_relationships_user_shoplist",
                 fields=['user', 'recipe'],
             ),
         ]
@@ -299,9 +286,3 @@ class ShoppingUserList(models.Model):
             self.user,
             self.recipe
         )
-        # return f'{self.achievement} {self.cat}'
-
-
-
-
-
