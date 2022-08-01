@@ -130,7 +130,7 @@ sudo docker push avchasovskikh/foodgram_backend:latest
 * HOST # ip-адрес сервера
 * PASSPHRASE = # пароль от ssh-ключа, на сервере 
 * USER = # логин пользователя на сервере, от ssh-ключа
-* SSH_KEY # приватный ssh ключ (cat ~/.ssh/id_rsa)
+* SSH_KEY # приватный ssh ключ локального комьютера имеющего доступ к серверу (cat ~/.ssh/id_rsa)
 
 
 
