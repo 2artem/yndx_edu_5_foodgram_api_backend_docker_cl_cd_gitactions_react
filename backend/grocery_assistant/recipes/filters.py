@@ -1,3 +1,4 @@
+from django_filters import AllValuesMultipleFilter
 from django_filters import rest_framework as filters
 
 from .models import Ingredient, Recipe, Tag
@@ -11,7 +12,7 @@ class CustomRecipeFilterSet(filters.FilterSet):
         label='tags',
         queryset=Tag.objects.all()
     )
-    author = filters.CharFilter(lookup_expr='username')
+    author = AllValuesMultipleFilter(field_name='author__id')
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
     is_in_shopping_cart = filters.BooleanFilter(
         method='filter_is_in_shopping_cart'

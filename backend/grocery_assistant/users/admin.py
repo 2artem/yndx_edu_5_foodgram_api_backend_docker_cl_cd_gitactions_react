@@ -18,6 +18,7 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = ('email',)
     ordering = ('email',)
+    list_filter = ('username', 'email', 'first_name',)
     empty_value_display = 'NULL'
 
 

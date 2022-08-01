@@ -4,7 +4,6 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-
 from users.serializers import UserSerializer
 
 from .models import (FavoritesRecipesUserList, Ingredient, Recipe,
@@ -146,7 +145,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     '''Сериалайзер, производящий запись или обновление рецепта.'''
     ingredients = RecipeIngredientAmountCreateUpdateSerializer(
         many=True,
-        source='recipe_for_ingredient'
+        source='ingredient_in_recipe'
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -184,38 +183,32 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Теги должны быть уникальными.'
                 )
-        if 'recipe_for_ingredient' in data:
+        if 'ingredient_in_recipe' in data:
             # Проверим ингридиенты в запросе на уникальность
             # и то, что количество не меньше 0
-            ingredients = data.get('recipe_for_ingredient')
+            ingredients = data.get('ingredient_in_recipe')
             all_ingredients_request = len(ingredients)
             uniq_ingredients = set()
-            list_null_amount = list()
             for ingredient in ingredients:
                 id = ingredient['id']
                 amount = ingredient['amount']
                 # если меньше нуля
                 if amount <= 0:
-                    list_null_amount.append(
-                        (
-                            'Количество \"amount\" для ингридиента c \"id\" = '
-                            + f'{id} должно быть больше 0, у Вас {amount}.'
-                        )
+                    raise serializers.ValidationError(
+                        'Минимальное количество ингредиента: 1.'
                     )
                 uniq_ingredients.add(id)
             if len(uniq_ingredients) != all_ingredients_request:
                 raise serializers.ValidationError(
                     'Ингридиенты должны быть уникальными.'
                 )
-            if list_null_amount:
-                raise serializers.ValidationError(list_null_amount)
         return data
 
     def create(self, validated_data):
         '''Переопределение создания рецепта.'''
         with transaction.atomic():
             # заберем ингредиенты и теги из валидированных входных данных
-            ingredients = validated_data.pop('recipe_for_ingredient')
+            ingredients = validated_data.pop('ingredient_in_recipe')
             tags = validated_data.pop('tags')
             author = self.context.get('request').user
             recipe = Recipe.objects.create(
@@ -236,7 +229,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             # достаем редактируемый рецепт
             current_obj_recipe = get_object_or_404(Recipe, id=instance.pk)
             # если были переданы ингридиенты
-            if validated_data.get('recipe_for_ingredient'):
+            if validated_data.get('ingredient_in_recipe'):
                 # чистим связи с ингридиентами
                 model = RecipeIngredientRelationship
                 records_ingredient_recipe = model.objects.filter(
@@ -245,7 +238,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 for record in records_ingredient_recipe:
                     record.delete()
                 # Входные данные
-                ingredients = validated_data.pop('recipe_for_ingredient')
+                ingredients = validated_data.pop('ingredient_in_recipe')
                 # создадим отношения между ингридиентами и рецептами
                 # в Связующей таблице, если такие есть в БД
                 create_relationship_ingredient_recipe(
