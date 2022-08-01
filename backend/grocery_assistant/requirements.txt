@@ -7,8 +7,8 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==37.0.4
 defusedxml==0.7.1
-Django==4.0.6
-django-filter==22.1
+Django==2.2.16
+django-filter==2.4.0
 django-templated-mail==1.1.1
 djangorestframework==3.13.1
 djoser==2.1.0

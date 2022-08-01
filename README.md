@@ -48,9 +48,35 @@ GitHub-> Settings->SSH and GPG keys->Add SSH key->добавить ключ ег
 2. DevOps (Development Operations) — это методика увеличения скорости, качества и безопасности разработки.
 Continuous Integration (англ. «непрерывная интеграция», сокращенно CI) состоит в том, чтобы после внесения изменений в любую часть кода проводилось тестирование не только того модуля, который был изменён, но и всего проекта.
 GitHub Actions — это облачный сервис, инструмент для автоматизации процессов тестирования и деплоя проектов.
-
 Для подключения GitHub Actions создана директория .github/workflows, а в ней — yml-файл.
 В файле .yml декларативно описывается workflow, процесс автоматизации: пошаговые команды и условия их выполнения. 
+
+Запушены докер-образы на DockerHub (по Dockerfile).
+sudo docker build -t avchasovskikh/foodgram_frontend:latest .
+sudo docker build -t avchasovskikh/foodgram_backend:latest .
+sudo docker login -u avchasovskikh (пароль)
+sudo docker push avchasovskikh/foodgram_frontend:latest
+sudo docker push avchasovskikh/foodgram_backend:latest
+
+Добавлены переменные окружения на GitHub Actions.
+2artem/foodgram-project-react -> Settings -> Secrets -> Actions -> New repositiry secret:
+
+* DOCKER_PASSWORD # пароль от DockerHub
+* DOCKER_USERNAME # имя пользователя на DockerHub
+* DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
+* DB_NAME = postgres # имя базы данных
+* POSTGRES_USER = postgres # логин для подключения к базе данных
+* POSTGRES_PASSWORD = postgres # пароль для подключения к БД (установите свой)
+* DB_HOST = db # название сервиса (контейнера)
+* DB_PORT = 5432 # порт для подключения к БД 
+* TELEGRAM_TO # id своего телеграм-аккаунта (@userinfobot)
+* TELEGRAM_TOKEN - токен бота (@BotFather)
+* HOST # ip-адрес сервера
+* PASSPHRASE = # пароль от ssh-ключа, на сервере 
+* USER = # логин пользователя на сервере, от ssh-ключа
+* SSH_KEY # приватный ssh ключ (публичный должен быть на сервере)(cat ~/.ssh/id_rsa)
+
+
 
 
 
