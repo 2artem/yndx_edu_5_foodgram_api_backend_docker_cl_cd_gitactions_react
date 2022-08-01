@@ -36,6 +36,42 @@ sudo apt upgrade -y
 установим систему контроля версий, утилиту для создания виртуального окружения и менеджер пакетов
 sudo apt install python3-pip python3-venv git -y
 
+установим Docker и docker-compose
+# Установка утилиты для скачивания файлов
+sudo apt install curl
+# Эта команда скачает скрипт для установки докера
+sudo curl -fsSL https://get.docker.com -o get-docker.sh
+# Эта команда запустит его
+sudo sh get-docker.sh
+
+sudo apt remove docker docker-engine docker.io containerd runc
+
+# Обновить список пакетов
+sudo apt update
+
+# Установить необходимые пакеты для загрузки через https
+sudo apt install \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  gnupg-agent \
+  software-properties-common -y
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+# В консоли должно вывестись ОК 
+
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+sudo apt update 
+
+sudo apt install docker-ce docker-compose -y
+
+sudo systemctl status docker
+
+
+
+
+
 дадим доступ к сервису GitHub нашему серверу
 сгенерируем ssh-ключ
 ssh-keygen (Enter, плюс ввод создание пароля для ключа)
@@ -44,6 +80,28 @@ ssh-keygen (Enter, плюс ввод создание пароля для клю
 cat ~/.ssh/id_rsa.pub
 
 GitHub-> Settings->SSH and GPG keys->Add SSH key->добавить ключ его название
+
+
+
+
+
+Перенесем файлы из проекта docker-compose.yaml и nginx/default.conf на сервер,
+в home/<ваш_username>/docker-compose.yaml и home/<ваш_username>/nginx/default.conf соответственно,
+так как на основании них и будут собраны все настройки проекта.
+На сервере:
+pwd   # /home/admin
+mkdir nginx
+
+На рабочем компьютере, в папке infra/:
+копируем yaml
+scp docker-compose.yml admin@158.160.9.55:/home/admin
+scp nginx.conf admin@158.160.9.55:/home/admin/nginx
+
+
+
+
+
+
 
 2. DevOps (Development Operations) — это методика увеличения скорости, качества и безопасности разработки.
 Continuous Integration (англ. «непрерывная интеграция», сокращенно CI) состоит в том, чтобы после внесения изменений в любую часть кода проводилось тестирование не только того модуля, который был изменён, но и всего проекта.
