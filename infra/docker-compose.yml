@@ -51,7 +51,7 @@ services:
     volumes:
       # При сборке скопировать созданный конфиг nginx из исходной директории 
       # в контейнер и сохранить его в директорию /etc/nginx/conf.d/
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
       # Путь /usr/share/nginx/html из nginx.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
