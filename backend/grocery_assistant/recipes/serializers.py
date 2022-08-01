@@ -171,45 +171,45 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         '''На вывод возвращаем рецепт через другой сериалайзер.'''
         return RecipeSerializer(instance, context=self.context).data
 
-    def validate_tags(self, value):
-        '''Валидация тегов.'''
-        # Проверим теги в запросе на уникальность
-        tags = value
-        all_tags_request = len(tags)
-        uniq_tags = set()
-        for tag in tags:
-            uniq_tags.add(tag.pk)
-        if len(uniq_tags) != all_tags_request:
-            raise serializers.ValidationError('Теги должны быть уникальными.')
-        return value
-
-    def validate_ingredients(self, value):
-        '''Валидация ингредиентов.'''
-        # Проверим ингридиенты в запросе на уникальность
-        # и то, что количество не меньше 0
-        ingredients = value
-        all_ingredients_request = len(ingredients)
-        uniq_ingredients = set()
-        list_null_amount = list()
-        for ingredient in ingredients:
-            id = ingredient['id']
-            amount = ingredient['amount']
-            # если меньше нуля
-            if amount <= 0:
-                list_null_amount.append(
-                    (
-                        'Количество \"amount\" для ингридиента c \"id\" = '
-                        + f'{id} должно быть больше 0, у Вас {amount}.'
-                    )
+    def validate(self, data):
+        '''Валидация на уровне объекта.'''
+        if 'tags' in data:
+            # Проверим теги в запросе на уникальность
+            tags = data.get('tags')
+            all_tags_request = len(tags)
+            uniq_tags = set()
+            for tag in tags:
+                uniq_tags.add(tag.pk)
+            if len(uniq_tags) != all_tags_request:
+                raise serializers.ValidationError(
+                    'Теги должны быть уникальными.'
                 )
-            uniq_ingredients.add(id)
-        if len(uniq_ingredients) != all_ingredients_request:
-            raise serializers.ValidationError(
-                'Ингридиенты должны быть уникальными.'
-            )
-        if list_null_amount:
-            raise serializers.ValidationError(list_null_amount)
-        return value
+        if 'recipe_for_ingredient' in data:
+            # Проверим ингридиенты в запросе на уникальность
+            # и то, что количество не меньше 0
+            ingredients = data.get('recipe_for_ingredient')
+            all_ingredients_request = len(ingredients)
+            uniq_ingredients = set()
+            list_null_amount = list()
+            for ingredient in ingredients:
+                id = ingredient['id']
+                amount = ingredient['amount']
+                # если меньше нуля
+                if amount <= 0:
+                    list_null_amount.append(
+                        (
+                            'Количество \"amount\" для ингридиента c \"id\" = '
+                            + f'{id} должно быть больше 0, у Вас {amount}.'
+                        )
+                    )
+                uniq_ingredients.add(id)
+            if len(uniq_ingredients) != all_ingredients_request:
+                raise serializers.ValidationError(
+                    'Ингридиенты должны быть уникальными.'
+                )
+            if list_null_amount:
+                raise serializers.ValidationError(list_null_amount)
+        return data
 
     def create(self, validated_data):
         '''Переопределение создания рецепта.'''

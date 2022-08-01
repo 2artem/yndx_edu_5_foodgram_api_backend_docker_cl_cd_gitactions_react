@@ -8,8 +8,7 @@ WORKDIR /app
 # в директорию /app.
 COPY ./requirements.txt .
 
-
-RUN /usr/local/bin/python -m pip install --upgrade pip
+RUN pip install --upgrade pip
 
 # Выполнить установку зависимостей внутри контейнера.
 RUN pip3 install -r ./requirements.txt --no-cache-dir
