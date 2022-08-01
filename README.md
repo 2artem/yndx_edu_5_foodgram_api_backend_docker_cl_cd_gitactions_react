@@ -84,7 +84,6 @@ GitHub-> Settings->SSH and GPG keys->Add SSH key->добавить ключ ег
 
 
 
-
 Перенесем файлы из проекта docker-compose.yaml и nginx/default.conf на сервер,
 в home/<ваш_username>/docker-compose.yaml и home/<ваш_username>/nginx/default.conf соответственно,
 так как на основании них и будут собраны все настройки проекта.

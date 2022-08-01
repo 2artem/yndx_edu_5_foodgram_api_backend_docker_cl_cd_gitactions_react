@@ -5,9 +5,10 @@ version: '3.3'
 services:
   # описание контейнера
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: avchasovskikh/foodgram_frontend:latest
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
     # volume и связанная с ним директория в контейнере
     volumes:
       - ../frontend/:/app/result_build/
@@ -25,7 +26,8 @@ services:
       - ./.env
 
   web:
-    build: ../backend/grocery_assistant
+    image: avchasovskikh/foodgram_backend:latest
+#    build: ../backend/grocery_assistant
     restart: always
     volumes:
       # Контейнер web будет работать с данными, хранящиеся в томе static_value, 
