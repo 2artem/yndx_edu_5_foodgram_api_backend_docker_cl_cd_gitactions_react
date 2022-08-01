@@ -148,7 +148,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         content = (
             'Ваш сервис, Продуктовый помощник, подготовил \nсписок '
             + 'покупок по выбранным рецептам:\n'
-            + 50*'_'
+            + 50 * '_'
             + '\n\n'
         )
         if not queryset_ingredients:

@@ -5,8 +5,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from recipes.models import Recipe
 
+from recipes.models import Recipe
 from .models import Follow
 
 User = get_user_model()
@@ -114,9 +114,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         '''Общее количество рецептов пользователя.'''
-        return Recipe.objects.filter(
-            author=obj
-            ).count()
+        return Recipe.objects.filter(author=obj).count()
 
     def get_recipes(self, obj):
         '''Получить рецепты пользователя.'''
