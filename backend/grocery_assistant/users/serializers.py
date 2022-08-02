@@ -26,7 +26,7 @@ def user_is_subscribed(self, obj):
     '''Подписан ли текущий пользователь на другого пользователя.'''
     user = self.context['request'].user
     # Если пользователь не аноним и подписка существует
-    if (user.is_anonymous() is not True
+    if (user.is_anonymous is not True
             and Follow.objects.filter(user=user, following=obj.pk).exists()):
         return True
     return False
