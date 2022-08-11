@@ -1,12 +1,12 @@
 # Foodgram-project-react (grocery_assistant)
-![Foodgram-project-react](https://github.com/2artem/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
+ <!--
+![Foodgram-project-react](https://github.com/2artem/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+-->
 
 Адреса развернутого приложения:
 ```
-http://158.160.9.55/
-
-http://158.160.9.55/
+http://158.160.9.55/ - ПРИОСТАНОВЛЕНО
 ```
 ## Описание проекта:
 Проект Foodgram продуктовый помощник - платформа для публикации рецептов.
