@@ -9,7 +9,7 @@ SECRET_KEY = 't%d(yok_qkk$lw!yk*q4$zq!2n#f!2kas#0%^q@o0h$f^7=(%^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['51.250.102.113', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['51.250.102.113', '127.0.0.1', 'localhost', 'achasovskikh.ru']
 
 
 # Application definition
