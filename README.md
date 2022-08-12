@@ -2,8 +2,9 @@
 
 (foodgram-project-react - Спринт 17)
  <!--
+ -->
 ![Foodgram-project-react](https://github.com/2artem/foodgram-project-react/actions/workflows/main.yml/badge.svg)
--->
+
 
 ## Адрес развернутого приложения:
 
