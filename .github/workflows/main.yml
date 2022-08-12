@@ -24,7 +24,7 @@ jobs:
         # обновление pip
         python -m pip install --upgrade pip 
         # установка flake8 и его плагинов
-        pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort Pillow pycodestyle
+        pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort Pillow pycodestyle==2.8.0
         # установка зависимостей
         pip install -r backend/grocery_assistant/requirements.txt
 
